@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { BookOpen, Settings as SettingsIcon } from 'lucide-react';
 import { Breadcrumb } from './Breadcrumb';
 import { useBreadcrumb } from '../contexts/BreadcrumbContext';
+import iconImage from '../assets/images/icon.png';
 
 export const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -16,10 +17,10 @@ export const AppLayout: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-md">
-                <BookOpen className="w-5 h-5 text-white" />
+              <div className="p-2 bg-gradient-to-br from-gray-400 to-gray-700 dark:from-gray-200 dark:to-gray-500 rounded-lg shadow-md">
+                <img src={iconImage} alt="CodeX" className="w-5 h-5" />
               </div>
-              <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent">CodeX</span>
+              <span className="font-bold text-xl bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-300 dark:to-gray-100 bg-clip-text text-transparent">CodeX</span>
             </div>
             <Breadcrumb codexTitle={codexTitle} sectionTitle={sectionTitle} />
           </div>

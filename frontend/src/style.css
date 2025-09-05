@@ -11,23 +11,23 @@
 @layer base {
     :root {
         /* Professional Light Theme */
-        --color-bg: #FAFBFC;
-        --color-bg-secondary: #F6F8FA;
-        --color-text: #0D1117;
+        --color-bg: #F7F8F9;
+        --color-bg-secondary: #F1F3F5;
+        --color-text: #2C3E50;
         --color-text-muted: #57606A;
         --color-text-subtle: #6E7781;
         --color-border: rgba(208, 215, 222, 0.65);
         --color-border-subtle: rgba(208, 215, 222, 0.32);
-        --color-card: #FFFFFF;
-        --color-card-hover: #FEFFFE;
+        --color-card: #FDFDFD;
+        --color-card-hover: #FAFBFC;
         --color-hover: rgba(208, 215, 222, 0.12);
-        --color-accent: #0969DA;
-        --color-accent-hover: #0860CA;
-        --color-accent-subtle: rgba(9, 105, 218, 0.1);
+        --color-accent: #6B9BD1;
+        --color-accent-hover: #5A8BC4;
+        --color-accent-subtle: rgba(107, 155, 209, 0.1);
         --color-success: #1A7F37;
         --color-warning: #9A6700;
         --color-danger: #CF222E;
-        --color-info: #0969DA;
+        --color-info: #6B9BD1;
         
         /* Shadows for elevation */
         --shadow-xs: 0 1px 0 rgba(27, 31, 36, 0.04);
@@ -320,28 +320,26 @@
     .prose pre code.hljs {
         @apply bg-transparent;
         font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        padding-top: 2rem;
     }
     
     .prose blockquote {
         @apply border-gray-300 dark:border-gray-600;
     }
 
-    /* Code block language labels */
-    .code-block-header {
-        @apply bg-gray-200 dark:bg-gray-800 px-3 py-1 rounded-t-lg border-b border-gray-300 dark:border-gray-600;
-        @apply flex items-center justify-between;
+    /* Code block language labels using ::before pseudo-element */
+    .prose pre[data-language]::before {
+        content: attr(data-language);
+        @apply absolute top-2 left-3 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide z-10;
+        @apply bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded;
     }
-    
-    .code-block-language {
-        @apply text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wide;
-    }
-    
-    .code-with-header {
-        @apply rounded-t-none mt-0;
-    }
-    
-    .code-with-header.hljs {
-        @apply rounded-t-none;
+
+    /* Highlight.js light mode styling */
+    .hljs {
+        background: #f3f4f6 !important;
+        color: #374151 !important;
     }
 
     /* Highlight.js dark mode overrides */

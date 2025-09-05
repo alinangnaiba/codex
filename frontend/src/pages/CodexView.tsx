@@ -173,7 +173,7 @@ export const CodexView: React.FC = () => {
         {/* Left sidebar - Table of Contents */}
         <div className="w-80 border-r border-gray-200 dark:border-gray-700 flex flex-col">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="font-semibold text-lg mb-3">Sections</h2>
+            <h2 className="font-semibold text-lg mb-3">Manuscripts</h2>
             
             {/* Add new section */}
             <div className="flex gap-2">
@@ -186,7 +186,7 @@ export const CodexView: React.FC = () => {
                     handleAddSection();
                   }
                 }}
-                placeholder="New section title..."
+                placeholder="New manuscript title..."
                 className="input flex-1"
                 disabled={isAddingSection}
               />
@@ -266,8 +266,8 @@ export const CodexView: React.FC = () => {
             ) : (
               <div className="p-8 text-center text-gray-500">
                 <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
-                <p>No sections yet</p>
-                <p className="text-sm mt-1">Add your first section above</p>
+                <p>No manuscripts yet</p>
+                <p className="text-sm mt-1">Add your first manuscript above</p>
               </div>
             )}
           </div>

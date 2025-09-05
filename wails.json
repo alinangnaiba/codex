@@ -9,5 +9,10 @@
   "author": {
     "name": "lintong",
     "email": "60266082+alinangnaiba@users.noreply.github.com"
+  },
+  "platforms": {
+    "windows": {
+      "icon": "build/icon.ico"
+    }
   }
 }

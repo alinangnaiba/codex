@@ -136,7 +136,7 @@ export const md: MarkdownIt = new MarkdownIt({
       try {
         const result = hljs.highlight(str, { language: lang });
         const displayName = getLanguageDisplayName(lang);
-        return `<div class="code-block-header"><span class="code-block-language">${displayName}</span></div><pre class="hljs bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto code-with-header"><code class="hljs language-${lang}">${result.value}</code></pre>`;
+        return `<pre class="hljs bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto relative" data-language="${displayName}"><code class="hljs language-${lang}">${result.value}</code></pre>`;
       } catch (__) {
         // Fall back to escaped content if highlighting fails
       }
@@ -144,7 +144,7 @@ export const md: MarkdownIt = new MarkdownIt({
     
     // Default fallback for unknown languages or highlighting failures
     const displayName = lang ? getLanguageDisplayName(lang) : 'Code';
-    return `<div class="code-block-header"><span class="code-block-language">${displayName}</span></div><pre class="hljs bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto code-with-header"><code class="hljs">${md.utils.escapeHtml(str)}</code></pre>`;
+    return `<pre class="hljs bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto relative" data-language="${displayName}"><code class="hljs">${md.utils.escapeHtml(str)}</code></pre>`;
   }
 });
 

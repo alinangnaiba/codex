@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { ChevronRight, Home, Book, Edit3 } from 'lucide-react';
+import { ChevronRight, Book, Edit3, Library } from 'lucide-react';
 
 interface BreadcrumbItem {
   label: string;
@@ -21,9 +21,9 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ codexTitle, sectionTitle
   const getBreadcrumbItems = (): BreadcrumbItem[] => {
     const items: BreadcrumbItem[] = [
       {
-        label: 'Library',
+        label: 'My Library',
         path: '/',
-        icon: <Home className="w-4 h-4" />
+        icon: <Library className="w-4 h-4" />
       }
     ];
 
