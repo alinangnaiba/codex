@@ -1,0 +1,243 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* Import highlight.js theme */
+@import 'highlight.js/styles/github.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --color-bg: #F9F9F9;
+        --color-text: #1E1E1E;
+        --color-border: #E5E5E5;
+        --color-card: #FFFFFF;
+        --color-hover: #F5F5F5;
+        --color-accent: #3B82F6;
+        --color-accent-hover: #2563EB;
+    }
+
+    :root.dark {
+        --color-bg: #1A1A1A;
+        --color-text: #D1D5DB;
+        --color-border: #333333;
+        --color-card: #262626;
+        --color-hover: #2A2A2A;
+        --color-accent: #3B82F6;
+        --color-accent-hover: #2563EB;
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        transition: background-color 0.2s, color 0.2s;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply px-4 py-2 bg-blue-500 text-white rounded-xl font-medium;
+        @apply hover:bg-blue-600 transition-colors duration-200;
+        @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+        @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+
+    .btn-secondary {
+        @apply px-4 py-2 border border-gray-300 rounded-xl font-medium;
+        @apply hover:bg-gray-100 transition-colors duration-200;
+        @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+        @apply dark:border-gray-700 dark:hover:bg-gray-800;
+    }
+
+    .card {
+        @apply bg-white rounded-xl border border-gray-200;
+        @apply dark:bg-gray-800 dark:border-gray-700;
+        @apply transition-all duration-200;
+    }
+
+    .card-hover {
+        @apply hover:shadow-lg hover:scale-[1.02];
+    }
+
+    .input {
+        @apply w-full px-3 py-2 bg-transparent border border-gray-300 rounded-xl;
+        @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+        @apply dark:border-gray-700;
+        @apply transition-colors duration-200;
+    }
+
+    .split-pane {
+        @apply flex h-full;
+    }
+
+    .split-pane-left {
+        @apply w-1/3 min-w-[250px] max-w-[400px] border-r border-light-border;
+        @apply dark:border-dark-border;
+        @apply overflow-y-auto;
+    }
+
+    .split-pane-right {
+        @apply flex-1 overflow-y-auto;
+    }
+
+    /* Prose customizations for better markdown rendering */
+    .prose {
+        @apply text-gray-900 dark:text-gray-100;
+    }
+    
+    .prose h1, .prose h2, .prose h3, .prose h4 {
+        @apply text-gray-900 dark:text-gray-100;
+    }
+    
+    .prose strong {
+        @apply text-gray-900 dark:text-gray-100;
+    }
+    
+    .prose a {
+        @apply text-blue-500 hover:text-blue-600;
+    }
+    
+    /* Inline code styling */
+    .prose code:not(.hljs) {
+        @apply text-pink-600 dark:text-pink-400 font-mono;
+    }
+    
+    /* Code block styling */
+    .prose pre {
+        @apply bg-gray-100 dark:bg-gray-900 rounded-lg;
+    }
+    
+    .prose pre code.hljs {
+        @apply bg-transparent;
+        font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+    }
+    
+    .prose blockquote {
+        @apply border-gray-300 dark:border-gray-600;
+    }
+
+    /* Code block language labels */
+    .code-block-header {
+        @apply bg-gray-200 dark:bg-gray-800 px-3 py-1 rounded-t-lg border-b border-gray-300 dark:border-gray-600;
+        @apply flex items-center justify-between;
+    }
+    
+    .code-block-language {
+        @apply text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wide;
+    }
+    
+    .code-with-header {
+        @apply rounded-t-none mt-0;
+    }
+    
+    .code-with-header.hljs {
+        @apply rounded-t-none;
+    }
+
+    /* Highlight.js dark mode overrides */
+    .dark .hljs {
+        background: #1f2937 !important;
+        color: #e5e7eb !important;
+    }
+    
+    .dark .hljs-comment,
+    .dark .hljs-quote {
+        color: #6b7280 !important;
+    }
+    
+    .dark .hljs-keyword,
+    .dark .hljs-selector-tag,
+    .dark .hljs-literal,
+    .dark .hljs-type {
+        color: #c084fc !important;
+    }
+    
+    .dark .hljs-string,
+    .dark .hljs-title {
+        color: #34d399 !important;
+    }
+    
+    .dark .hljs-number,
+    .dark .hljs-attr {
+        color: #fbbf24 !important;
+    }
+    
+    .dark .hljs-built_in,
+    .dark .hljs-function {
+        color: #60a5fa !important;
+    }
+    
+    .dark .hljs-variable,
+    .dark .hljs-template-variable {
+        color: #f87171 !important;
+    }
+    
+    .dark .hljs-symbol,
+    .dark .hljs-bullet,
+    .dark .hljs-link {
+        color: #a78bfa !important;
+    }
+    
+    /* Light mode enhancements */
+    .hljs-keyword,
+    .hljs-selector-tag,
+    .hljs-literal,
+    .hljs-type {
+        color: #7c3aed;
+        font-weight: 500;
+    }
+    
+    .hljs-string,
+    .hljs-title {
+        color: #059669;
+    }
+    
+    .hljs-number,
+    .hljs-attr {
+        color: #d97706;
+    }
+    
+    .hljs-built_in,
+    .hljs-function {
+        color: #2563eb;
+    }
+    
+    .hljs-variable,
+    .hljs-template-variable {
+        color: #dc2626;
+    }
+}
+
+@layer utilities {
+    /* Scrollbar styles */
+    .scrollbar-thin {
+        scrollbar-width: thin;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        @apply bg-gray-400 dark:bg-gray-600;
+    }
+}
+
+html, body, #app {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}

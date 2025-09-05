@@ -1,0 +1,57 @@
+# Build outputs
+/build/
+/build/bin/
+
+# Frontend build artifacts (Vite / Parcel / general)
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.cache/
+frontend/.parcel-cache/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Environment files
+.env
+.env.local
+frontend/.env
+frontend/.env.local
+
+# Go / native build artifacts
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# Test / coverage
+coverage.out
+.nyc_output/
+
+# Editors & OS
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Misc
+dist/
+tmp/
+temp/
+
+# Optional tooling caches
+.cache/
+
+# Ignore generated checksum files
+*.md5
