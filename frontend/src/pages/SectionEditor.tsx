@@ -3,12 +3,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, FileText, Eye, Code, Download, Upload } from 'lucide-react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { sectionAPI, codexAPI, fileAPI, settingsAPI } from '../utils/api';
+import { useBreadcrumb } from '../contexts/BreadcrumbContext';
 import md from '../utils/markdown';
 
 export const SectionEditor: React.FC = () => {
   const { codexId, sectionId } = useParams<{ codexId: string; sectionId: string }>();
   const navigate = useNavigate();
+  const { setCodexTitle, setSectionTitle: setBreadcrumbSectionTitle } = useBreadcrumb();
   const [sectionTitle, setSectionTitle] = useState('');
+  const [originalSectionTitle, setOriginalSectionTitle] = useState('');
   const [content, setContent] = useState('');
   const [originalContent, setOriginalContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -41,13 +44,13 @@ export const SectionEditor: React.FC = () => {
     }
 
     const autoSaveInterval = setInterval(() => {
-      if (content !== originalContent && !isSaving) {
+      if ((content !== originalContent || sectionTitle !== originalSectionTitle) && !isSaving) {
         handleSave();
       }
     }, 30000);
 
     return () => clearInterval(autoSaveInterval);
-  }, [content, originalContent, isSaving, autoSaveEnabled]);
+  }, [content, originalContent, sectionTitle, originalSectionTitle, isSaving, autoSaveEnabled]);
 
   const loadSection = async (id: number) => {
     try {
@@ -62,6 +65,14 @@ export const SectionEditor: React.FC = () => {
       }
       
       setSectionTitle(section.title);
+      setOriginalSectionTitle(section.title);
+      
+      // Update breadcrumb with section title
+      setBreadcrumbSectionTitle(section.title);
+      
+      // Get codex details for breadcrumb
+      const codex = await codexAPI.getWithSections(parseInt(codexId!));
+      setCodexTitle(codex.title);
       
       // Get section content
       const sectionContent = await sectionAPI.getContent(id);
@@ -83,6 +94,7 @@ export const SectionEditor: React.FC = () => {
       setIsSaving(true);
       await sectionAPI.update(parseInt(sectionId), sectionTitle.trim(), content);
       setOriginalContent(content);
+      setOriginalSectionTitle(sectionTitle.trim());
       setLastSaved(new Date());
     } catch (error) {
       console.error('Failed to save section:', error);
@@ -154,7 +166,7 @@ export const SectionEditor: React.FC = () => {
     );
   }
 
-  const hasChanges = content !== originalContent;
+  const hasChanges = content !== originalContent || sectionTitle !== originalSectionTitle;
 
   return (
     <div className="h-full flex flex-col">

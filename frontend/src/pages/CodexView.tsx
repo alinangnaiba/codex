@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Edit2, Trash2, CheckSquare, Square, FileText } from 'lucide-react';
+import { Plus, Edit2, Trash2, CheckSquare, Square, FileText, Book } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { codexAPI, sectionAPI, CodexWithSections, Section } from '../utils/api';
+import { useBreadcrumb } from '../contexts/BreadcrumbContext';
 import md from '../utils/markdown';
 
 export const CodexView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { setCodexTitle } = useBreadcrumb();
   const [codex, setCodex] = useState<CodexWithSections | null>(null);
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
   const [sectionContent, setSectionContent] = useState<string>('');
@@ -23,7 +25,12 @@ export const CodexView: React.FC = () => {
     if (id) {
       loadCodex(parseInt(id));
     }
-  }, [id]);
+    
+    // Cleanup breadcrumbs when component unmounts
+    return () => {
+      setCodexTitle('');
+    };
+  }, [id, setCodexTitle]);
 
   useEffect(() => {
     if (selectedSection) {
@@ -37,9 +44,13 @@ export const CodexView: React.FC = () => {
       const data = await codexAPI.getWithSections(codexId);
       setCodex(data);
       
-      // Select first section by default if exists
+      // Update breadcrumb with codex title
+      setCodexTitle(data.title);
+      
+      // Select first incomplete section by default, or first section if all are complete
       if (data.sections && data.sections.length > 0) {
-        setSelectedSection(data.sections[0]);
+        const firstIncomplete = data.sections.find(section => !section.isComplete);
+        setSelectedSection(firstIncomplete || data.sections[data.sections.length - 1]);
       }
     } catch (error) {
       console.error('Failed to load codex:', error);
@@ -142,22 +153,17 @@ export const CodexView: React.FC = () => {
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/')}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="text-2xl font-bold">{codex.title}</h1>
-              {codex.description && (
-                <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  {codex.description}
-                </p>
-              )}
-            </div>
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+            <Book className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">{codex.title}</h1>
+            {codex.description && (
+              <p className="text-gray-600 dark:text-gray-400 mt-1">
+                {codex.description}
+              </p>
+            )}
           </div>
         </div>
       </div>
