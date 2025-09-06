@@ -5,14 +5,18 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"codex-wails/internal/adapters"
+	"codex-wails/internal/config"
 	"codex-wails/internal/database"
 	"codex-wails/internal/domain/codex"
 	"codex-wails/internal/domain/file"
 	"codex-wails/internal/domain/section"
 	"codex-wails/internal/domain/settings"
 	"codex-wails/internal/dto"
+	"codex-wails/internal/logger"
+	"codex-wails/internal/recovery"
 	"codex-wails/internal/storage"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -21,6 +25,10 @@ import (
 // App struct
 type App struct {
 	ctx context.Context
+
+	// Configuration and logging
+	config *config.Config
+	logger *logger.Logger
 
 	// Core services
 	db             *database.DB
@@ -33,43 +41,66 @@ type App struct {
 	fileHandler     *file.Handler
 }
 
-// NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
+	return &App{
+		config: config.Load(),
+	}
 }
 
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+
+	// Initialize logger first
+	a.logger = logger.New(a.config.DataPath, a.config.IsDevelopment)
+
+	// Set up panic recovery with logger
+	defer recovery.HandlePanic(a.logger)
+
+	a.logger.Info("Application starting up...")
+
 	runtime.LogInfo(a.ctx, "Application starting up...")
 
 	// Initialize database and storage
 	if err := a.initializeServices(); err != nil {
+		a.logger.Error("Failed to initialize services:", err)
 		runtime.LogErrorf(a.ctx, "Failed to initialize services: %v", err)
 		// Don't return here - we still want the app to run so user can see the error
 	} else {
+		a.logger.Info("Services initialized successfully")
 		runtime.LogInfo(a.ctx, "Services initialized successfully")
 	}
 }
 
 // shutdown is called when the app is closing
 func (a *App) shutdown(ctx context.Context) {
-	if a.db != nil {
-		a.db.Close()
+	a.logger.Info("Application shutting down...")
+
+	// Close storage service
+	if a.storageService != nil {
+		if err := a.storageService.Close(); err != nil {
+			a.logger.Warn("Failed to close storage service:", err)
+		}
 	}
+
+	// Close database
+	if a.db != nil {
+		if err := a.db.Close(); err != nil {
+			a.logger.Error("Failed to close database:", err)
+		} else {
+			a.logger.Info("Database closed successfully")
+		}
+	}
+
+	a.logger.Info("Application shutdown complete")
 }
 
 // initializeServices initializes the database and storage services
 func (a *App) initializeServices() error {
-	// Get or create app data directory
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("failed to get home directory: %w", err)
-	}
-	runtime.LogInfof(a.ctx, "Home directory: %s", homeDir)
-
-	appDataDir := filepath.Join(homeDir, ".codex")
+	// Use config data path
+	appDataDir := a.config.DataPath
+	a.logger.Info("App data directory:", appDataDir)
 	runtime.LogInfof(a.ctx, "App data directory: %s", appDataDir)
 
 	if err := os.MkdirAll(appDataDir, 0755); err != nil {
@@ -96,6 +127,9 @@ func (a *App) initializeServices() error {
 		return fmt.Errorf("failed to set default settings: %w", err)
 	}
 	runtime.LogInfo(a.ctx, "Default settings applied")
+
+	// Configure logger from settings
+	a.configureLogger(settingsRepo)
 
 	// Get content path from settings
 	contentPath, err := settingsRepo.Get("contentPath")
@@ -140,13 +174,49 @@ func (a *App) initializeServices() error {
 	return nil
 }
 
+// configureLogger applies logger settings from database
+func (a *App) configureLogger(settingsRepo *database.SettingsRepository) {
+	// Configure log level
+	if logLevel, err := settingsRepo.Get("logLevel"); err == nil {
+		switch logLevel {
+		case "debug":
+			a.logger.SetLogLevel(logger.DEBUG)
+		case "info":
+			a.logger.SetLogLevel(logger.INFO)
+		case "warn":
+			a.logger.SetLogLevel(logger.WARN)
+		case "error":
+			a.logger.SetLogLevel(logger.ERROR)
+		}
+	}
+
+	// Configure log retention
+	if retentionDays, err := settingsRepo.Get("logRetentionDays"); err == nil {
+		if days, err := strconv.Atoi(retentionDays); err == nil && days > 0 && days <= 30 {
+			a.logger.SetRetentionDays(days)
+		}
+	}
+}
+
 // updateStorageService updates the storage service when content path changes
 func (a *App) updateStorageService(newPath string) error {
-	storageService, err := storage.NewService(newPath)
+	// Create new storage service
+	newStorageService, err := storage.NewService(newPath)
 	if err != nil {
 		return err
 	}
-	a.storageService = storageService
+
+	// Clean up old storage service if it exists
+	if a.storageService != nil {
+		if err := a.storageService.Close(); err != nil {
+			a.logger.Warn("Failed to close old storage service:", err)
+		}
+	}
+
+	// Replace with new service
+	a.storageService = newStorageService
+	a.logger.Info("Storage service updated to new path:", newPath)
+
 	return nil
 }
 

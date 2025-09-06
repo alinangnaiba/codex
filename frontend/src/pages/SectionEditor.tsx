@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, FloppyDiskIcon, FileIcon, EyeIcon, CodeIcon, UploadSimpleIcon, TextHOneIcon, TextHTwoIcon, TextHThreeIcon, TextBIcon, TextItalicIcon, CodeBlockIcon, ListBulletsIcon, ListNumbersIcon, LinkIcon, QuotesIcon } from '@phosphor-icons/react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -19,6 +19,34 @@ export const SectionEditor: React.FC = () => {
   const [showPreview, setShowPreview] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(false);
+
+  // Use refs to capture latest values for interval callback
+  const latestContentRef = useRef(content);
+  const latestOriginalContentRef = useRef(originalContent);
+  const latestSectionTitleRef = useRef(sectionTitle);
+  const latestOriginalSectionTitleRef = useRef(originalSectionTitle);
+  const latestIsSavingRef = useRef(isSaving);
+
+  // Update refs whenever values change
+  useEffect(() => {
+    latestContentRef.current = content;
+  }, [content]);
+
+  useEffect(() => {
+    latestOriginalContentRef.current = originalContent;
+  }, [originalContent]);
+
+  useEffect(() => {
+    latestSectionTitleRef.current = sectionTitle;
+  }, [sectionTitle]);
+
+  useEffect(() => {
+    latestOriginalSectionTitleRef.current = originalSectionTitle;
+  }, [originalSectionTitle]);
+
+  useEffect(() => {
+    latestIsSavingRef.current = isSaving;
+  }, [isSaving]);
 
   useEffect(() => {
     if (sectionId) {
@@ -44,13 +72,17 @@ export const SectionEditor: React.FC = () => {
     }
 
     const autoSaveInterval = setInterval(() => {
-      if ((content !== originalContent || sectionTitle !== originalSectionTitle) && !isSaving) {
+      const hasContentChanges = latestContentRef.current !== latestOriginalContentRef.current;
+      const hasTitleChanges = latestSectionTitleRef.current !== latestOriginalSectionTitleRef.current;
+      const isCurrentlySaving = latestIsSavingRef.current;
+
+      if ((hasContentChanges || hasTitleChanges) && !isCurrentlySaving) {
         handleSave();
       }
     }, 30000);
 
     return () => clearInterval(autoSaveInterval);
-  }, [content, originalContent, sectionTitle, originalSectionTitle, isSaving, autoSaveEnabled]);
+  }, [autoSaveEnabled]); // Only depends on autoSaveEnabled, preventing excessive cleanup
 
   const loadSection = async (id: number) => {
     try {

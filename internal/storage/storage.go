@@ -148,6 +148,13 @@ func (s *Service) GetBasePath() string {
 	return s.basePath
 }
 
+// Close cleans up any resources held by the storage service
+func (s *Service) Close() error {
+	// Currently no persistent resources to clean up,
+	// but this provides a consistent interface for future resource management
+	return nil
+}
+
 // ValidateStoragePath checks if a path is valid and accessible
 func (s *Service) ValidateStoragePath(path string) error {
 	// Check if path exists

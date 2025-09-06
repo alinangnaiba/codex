@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, FloppyDiskIcon, FolderOpenIcon, SunIcon, MoonIcon, CheckIcon } from '@phosphor-icons/react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -17,9 +17,19 @@ export const Settings: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  
+  // Ref to track timeouts for cleanup
+  const saveMessageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     loadSettings();
+    
+    // Cleanup timeout on unmount
+    return () => {
+      if (saveMessageTimeoutRef.current) {
+        clearTimeout(saveMessageTimeoutRef.current);
+      }
+    };
   }, []);
 
   const loadSettings = async () => {
@@ -88,9 +98,13 @@ export const Settings: React.FC = () => {
       setOriginalAutoSave(autoSave);
       setSaveMessage('Settings saved successfully!');
       
-      // Clear success message after 3 seconds
-      setTimeout(() => {
+      // Clear success message after 3 seconds with proper cleanup
+      if (saveMessageTimeoutRef.current) {
+        clearTimeout(saveMessageTimeoutRef.current);
+      }
+      saveMessageTimeoutRef.current = setTimeout(() => {
         setSaveMessage('');
+        saveMessageTimeoutRef.current = null;
       }, 3000);
     } catch (error) {
       console.error('Failed to save settings:', error);
