@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, FloppyDiskIcon, FileIcon, EyeIcon, CodeIcon, UploadIcon, TextHOneIcon, TextHTwoIcon, TextHThreeIcon, TextBIcon, TextItalicIcon, CodeBlockIcon, ListBulletsIcon, ListNumbersIcon, LinkIcon, QuotesIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, FloppyDiskIcon, FileIcon, EyeIcon, CodeIcon, UploadSimpleIcon, TextHOneIcon, TextHTwoIcon, TextHThreeIcon, TextBIcon, TextItalicIcon, CodeBlockIcon, ListBulletsIcon, ListNumbersIcon, LinkIcon, QuotesIcon } from '@phosphor-icons/react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { sectionAPI, codexAPI, fileAPI, settingsAPI } from '../utils/api';
 import { useBreadcrumb } from '../contexts/BreadcrumbContext';
@@ -176,7 +176,7 @@ export const SectionEditor: React.FC = () => {
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(`/codex/${codexId}`)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="p-2 rounded-lg hover-bg"
             >
               <ArrowLeftIcon size={20} weight="regular" className="text-gray-600 dark:text-gray-400" />
             </button>
@@ -184,7 +184,7 @@ export const SectionEditor: React.FC = () => {
               type="text"
               value={sectionTitle}
               onChange={(e) => setSectionTitle(e.target.value)}
-              className="text-xl font-semibold bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1 w-[36rem]"
+              className="text-xl font-semibold bg-transparent border-b border-transparent hover:border-gray-300 focus:border-gray-500 focus:outline-none px-1 w-[36rem]"
               placeholder="Section title..."
             />
           </div>
@@ -207,15 +207,15 @@ export const SectionEditor: React.FC = () => {
             {/* Action buttons */}
             <button
               onClick={handleImportFile}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="p-2 rounded-lg hover-bg"
               title="Import markdown file"
             >
-              <UploadIcon size={20} weight="regular" className="text-gray-600 dark:text-gray-400" />
+              <UploadSimpleIcon size={20} weight="regular" className="text-gray-600 dark:text-gray-400" />
             </button>
             
             <button
               onClick={() => setShowPreview(!showPreview)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="p-2 rounded-lg hover-bg"
               title={showPreview ? 'Hide preview' : 'Show preview'}
             >
               {showPreview ? <CodeIcon size={20} weight="regular" className="text-gray-600 dark:text-gray-400" /> : <EyeIcon size={20} weight="regular" className="text-gray-600 dark:text-gray-400" />}
@@ -238,21 +238,21 @@ export const SectionEditor: React.FC = () => {
         <div className="flex items-center gap-1">
           <button
             onClick={() => insertMarkdown('# ')}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+            className="p-2 rounded-md hover-bg"
             title="Heading 1"
           >
             <TextHOneIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={() => insertMarkdown('## ')}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+            className="p-2 rounded-md hover-bg"
             title="Heading 2"
           >
             <TextHTwoIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={() => insertMarkdown('### ')}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+            className="p-2 rounded-md hover-bg"
             title="Heading 3"
           >
             <TextHThreeIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
@@ -260,28 +260,28 @@ export const SectionEditor: React.FC = () => {
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
           <button
             onClick={() => insertMarkdown('**', '**')}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+            className="p-2 rounded-md hover-bg"
             title="Bold (Ctrl+B)"
           >
             <TextBIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={() => insertMarkdown('*', '*')}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+            className="p-2 rounded-md hover-bg"
             title="Italic (Ctrl+I)"
           >
             <TextItalicIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={() => insertMarkdown('`', '`')}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+            className="p-2 rounded-md hover-bg"
             title="Inline Code"
           >
             <CodeIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={() => insertMarkdown('\n```\n', '\n```\n')}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+            className="p-2 rounded-md hover-bg"
             title="Code Block"
           >
             <CodeBlockIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
@@ -289,28 +289,28 @@ export const SectionEditor: React.FC = () => {
           <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
           <button
             onClick={() => insertMarkdown('- ')}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+            className="p-2 rounded-md hover-bg"
             title="Bullet List"
           >
             <ListBulletsIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={() => insertMarkdown('1. ')}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+            className="p-2 rounded-md hover-bg"
             title="Numbered List"
           >
             <ListNumbersIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={() => insertMarkdown('[', '](url)')}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+            className="p-2 rounded-md hover-bg"
             title="Insert Link"
           >
             <LinkIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={() => insertMarkdown('> ')}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+            className="p-2 rounded-md hover-bg"
             title="Quote"
           >
             <QuotesIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
@@ -327,7 +327,8 @@ export const SectionEditor: React.FC = () => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full h-full p-6 resize-none focus:outline-none bg-white dark:bg-gray-900 font-mono text-sm"
+            className="w-full h-full p-6 resize-none focus:outline-none font-mono text-sm"
+            style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}
             placeholder="Start writing in Markdown...\n\n# Heading 1\n## Heading 2\n\n**Bold text** and *italic text*\n\n- List item\n- Another item\n\n[Link text](https://example.com)"
           />
         </div>

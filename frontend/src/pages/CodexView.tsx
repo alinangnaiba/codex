@@ -154,8 +154,8 @@ export const CodexView: React.FC = () => {
       {/* Header */}
       <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-start gap-3">
-          <div className="p-2 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
-            <BookOpenIcon size={20} weight="duotone" className="text-gray-600 dark:text-gray-400" />
+          <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--color-hover)' }}>
+            <BookOpenIcon size={20} weight="duotone" style={{ color: 'var(--color-text-muted)' }} />
           </div>
           <div>
             <h1 className="text-2xl font-bold">{codex.title}</h1>
@@ -195,7 +195,7 @@ export const CodexView: React.FC = () => {
                 disabled={!newSectionTitle.trim() || isAddingSection}
                 className="btn-primary px-3"
               >
-                <PlusIcon className="w-4 h-4" />
+                <PlusIcon size={16} weight="regular" />
               </button>
             </div>
           </div>
@@ -209,8 +209,8 @@ export const CodexView: React.FC = () => {
                     key={section.id}
                     className={`group mb-1 p-3 rounded-lg cursor-pointer transition-colors ${
                       selectedSection?.id === section.id
-                        ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
-                        : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                        ? 'bg-blue-50 dark:bg-gray-500/20 border border-blue-200 dark:border-gray-500/20'
+                        : 'hover-bg'
                     }`}
                     onClick={() => setSelectedSection(section)}
                   >
@@ -224,9 +224,9 @@ export const CodexView: React.FC = () => {
                           className="mt-0.5 text-gray-500 hover:text-blue-500"
                         >
                           {section.isComplete ? (
-                            <CheckSquareIcon className="w-4 h-4" />
+                            <CheckSquareIcon size={16} weight="regular" />
                           ) : (
-                            <SquareIcon className="w-4 h-4" />
+                            <SquareIcon size={16} weight="regular" />
                           )}
                         </button>
                         <span
@@ -245,7 +245,7 @@ export const CodexView: React.FC = () => {
                             e.stopPropagation();
                             navigate(`/codex/${codex.id}/section/${section.id}/edit`);
                           }}
-                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
+                          className="p-1 rounded hover-bg"
                         >
                           <PencilSimpleIcon size={14} weight="regular" />
                         </button>
@@ -281,13 +281,6 @@ export const CodexView: React.FC = () => {
               <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold">{selectedSection.title}</h2>
-                  <button
-                    onClick={() => navigate(`/codex/${codex.id}/section/${selectedSection.id}/edit`)}
-                    className="btn-primary flex items-center gap-2"
-                  >
-                    <PencilSimpleIcon size={16} weight="regular" />
-                    Edit
-                  </button>
                 </div>
               </div>
 

@@ -56,22 +56,22 @@ export const CreateCodexDialog: React.FC<CreateCodexDialogProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+      <div className="rounded-lg shadow-xl w-full max-w-md mx-4 border" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
+        <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'var(--color-border)' }}>
+          <h2 className="text-lg font-medium" style={{ color: 'var(--color-text)' }}>
             {mode === 'create' ? 'Create New Codex' : 'Edit Codex'}
           </h2>
           <button
             onClick={handleClose}
             className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors duration-150"
           >
-            <X size={20} weight="regular" className="text-gray-500 dark:text-gray-400" />
+            <X size={20} weight="regular" style={{ color: 'var(--color-text-muted)' }} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-5">
           <div className="mb-4">
-            <label htmlFor="title" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            <label htmlFor="title" className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text)' }}>
               Title <span className="text-red-500">*</span>
             </label>
             <input
@@ -92,7 +92,7 @@ export const CreateCodexDialog: React.FC<CreateCodexDialogProps> = ({
           </div>
 
           <div className="mb-6">
-            <label htmlFor="description" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            <label htmlFor="description" className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text)' }}>
               Description
             </label>
             <textarea

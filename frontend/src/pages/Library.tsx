@@ -138,9 +138,9 @@ export const CodexLibrary: React.FC = () => {
   return (
     <div className="h-screen overflow-hidden flex flex-col">
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+      <header className="border-b px-6 py-4" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <h1 className="text-xl font-semibold flex items-center gap-2" style={{ color: 'var(--color-text)' }}>
             <BooksIcon size={24} weight="duotone" className="text-gray-600 dark:text-gray-400" />
             <span>My Library</span>
           </h1>

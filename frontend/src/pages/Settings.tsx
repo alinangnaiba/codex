@@ -117,7 +117,7 @@ export const Settings: React.FC = () => {
         <div className="mb-8">
           <button
             onClick={() => navigate('/')}
-            className="mb-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
+            className="mb-4 p-2 rounded-lg hover-bg inline-flex items-center gap-2"
           >
             <ArrowLeftIcon className="w-5 h-5" />
             Back to Library
@@ -130,7 +130,7 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* Theme Selection */}
-        <div className="mb-8 p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+        <div className="mb-8 p-6 rounded-lg border" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
           <h2 className="text-xl font-semibold mb-4">Appearance</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Choose your preferred color theme
@@ -139,11 +139,12 @@ export const Settings: React.FC = () => {
           <div className="grid grid-cols-2 gap-3 max-w-md">
             <button
               onClick={() => setTheme('light')}
-              className={`p-4 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-2 hover:scale-105 ${
+              className={`p-4 rounded-lg border-2 transition-all duration-150 flex flex-col items-center gap-2 ${
                 theme === 'light'
-                  ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 shadow-md'
+                  ? 'border-current'
                   : 'border-gray-300/50 dark:border-gray-600/50 hover:border-gray-400 dark:hover:border-gray-500'
               }`}
+              style={theme === 'light' ? { borderColor: 'var(--color-accent)', backgroundColor: 'var(--color-accent-subtle)' } : {}}
             >
               <SunIcon className="w-5 h-5" />
               <span className="font-medium">Light</span>
@@ -154,11 +155,12 @@ export const Settings: React.FC = () => {
             
             <button
               onClick={() => setTheme('dark')}
-              className={`p-4 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-2 hover:scale-105 ${
+              className={`p-4 rounded-lg border-2 transition-all duration-150 flex flex-col items-center gap-2 ${
                 theme === 'dark'
-                  ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 shadow-md'
+                  ? 'border-current'
                   : 'border-gray-300/50 dark:border-gray-600/50 hover:border-gray-400 dark:hover:border-gray-500'
               }`}
+              style={theme === 'dark' ? { borderColor: 'var(--color-accent)', backgroundColor: 'var(--color-accent-subtle)' } : {}}
             >
               <MoonIcon className="w-5 h-5" />
               <span className="font-medium">Dark</span>
@@ -170,14 +172,14 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* Editor Settings */}
-        <div className="mb-8 p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+        <div className="mb-8 p-6 rounded-lg border" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
           <h2 className="text-xl font-semibold mb-4">Editor</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Configure your editing experience
           </p>
           
           {/* Auto-save Toggle */}
-          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-xl">
+          <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--color-hover)' }}>
             <div className="flex-1">
               <label className="block text-sm font-medium mb-1">
                 Enable Auto-save
@@ -202,7 +204,7 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* Content Directory */}
-        <div className="mb-8 p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+        <div className="mb-8 p-6 rounded-lg border" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
           <h2 className="text-xl font-semibold mb-4">Content Storage</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Choose where your markdown files are stored
@@ -210,7 +212,7 @@ export const Settings: React.FC = () => {
           
           <div className="space-y-4">
             {/* Default Location Toggle */}
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-xl">
+            <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--color-hover)' }}>
               <div className="flex-1">
                 <label className="block text-sm font-medium mb-1">
                   Use Default Location
@@ -244,7 +246,8 @@ export const Settings: React.FC = () => {
                   value={useDefaultLocation ? '' : contentPath}
                   onChange={(e) => setContentPath(e.target.value)}
                   disabled={useDefaultLocation}
-                  className="input flex-1 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                  className="input flex-1 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: useDefaultLocation ? 'var(--color-hover)' : undefined }}
                   placeholder={useDefaultLocation ? `Using default location (${defaultContentPath})` : 'Enter custom directory path...'}
                 />
                 <button
@@ -267,7 +270,7 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* About Section */}
-        <div className="mb-8 p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-sm">
+        <div className="mb-8 p-6 rounded-lg border" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
           <h2 className="text-xl font-semibold mb-4">About CodeX</h2>
           <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <p>

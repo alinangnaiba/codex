@@ -64,13 +64,13 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       />
       
       {/* Modal */}
-      <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4">
+      <div className="relative rounded-lg shadow-xl w-full max-w-md mx-4" style={{ backgroundColor: 'var(--color-card)' }}>
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
+          className="absolute top-4 right-4 p-1.5 rounded-md hover-bg"
         >
-          <X size={20} weight="regular" className="text-gray-500 dark:text-gray-400" />
+          <X size={20} weight="regular" style={{ color: 'var(--color-text-muted)' }} />
         </button>
 
         <div className="p-6">
@@ -80,8 +80,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               <WarningIcon size={24} weight="duotone" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2">{title}</h3>
-              <p className="text-gray-600 dark:text-gray-400">{message}</p>
+              <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-text)' }}>{title}</h3>
+              <p style={{ color: 'var(--color-text-muted)' }}>{message}</p>
             </div>
           </div>
 
@@ -89,7 +89,8 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
           <div className="flex justify-end gap-3 mt-6">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 rounded-lg border hover-bg"
+              style={{ borderColor: 'var(--color-border)' }}
             >
               {cancelText}
             </button>

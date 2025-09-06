@@ -37,30 +37,11 @@ export const CodexCard: React.FC<CodexCardProps> = ({
 
       {/* Action buttons */}
       <div
-        className={`absolute top-2 right-2 flex gap-0.5 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 transition-opacity duration-150 ${
+        className={`absolute top-2 right-2 flex gap-0.5 rounded-md border transition-opacity duration-150 ${
           isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
+        style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}
       >
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onTogglePin(codex);
-          }}
-          className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150 rounded-l-md"
-          title={codex.isPinned ? 'Unpin' : 'Pin'}
-        >
-          <PushPinIcon size={16} weight={codex.isPinned ? 'fill' : 'regular'} className={codex.isPinned ? 'text-accent' : 'text-gray-500 dark:text-gray-400'} />
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit(codex);
-          }}
-          className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150 border-x border-gray-200 dark:border-gray-700"
-          title="Edit"
-        >
-          <PencilSimpleIcon size={16} weight="regular" className="text-gray-500 dark:text-gray-400" />
-        </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -71,13 +52,33 @@ export const CodexCard: React.FC<CodexCardProps> = ({
         >
           <TrashIcon size={16} weight="regular" className="text-red-500" />
         </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(codex);
+          }}
+          className="p-1.5 hover-bg border-x border-gray-200 dark:border-gray-700"
+          title="Edit"
+        >
+          <PencilSimpleIcon size={16} weight="regular" className="text-gray-500 dark:text-gray-200" />
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onTogglePin(codex);
+          }}
+          className="p-1.5 hover-bg rounded-l-md"
+          title={codex.isPinned ? 'Unpin' : 'Pin'}
+        >
+          <PushPinIcon size={16} weight={codex.isPinned ? 'fill' : 'regular'} className={codex.isPinned ? 'text-accent' : 'text-gray-500 dark:text-gray-200'} />
+        </button>
       </div>
 
       {/* Content */}
       <div className="flex flex-col h-full">
         <div className="flex items-start gap-3 mb-3">
           <BookIcon size={20} weight="duotone" className="text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
-          <h3 className="font-medium text-base line-clamp-2 text-gray-900 dark:text-gray-100">{codex.title}</h3>
+          <h3 className="font-medium text-base line-clamp-2" style={{ color: 'var(--color-text)' }}>{codex.title}</h3>
         </div>
         
         {codex.description && (
@@ -88,7 +89,7 @@ export const CodexCard: React.FC<CodexCardProps> = ({
 
         {/* Progress bar */}
         {progress && progress.totalSections > 0 && (
-          <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-800">
+          <div className="mt-auto pt-3 border-t" style={{ borderColor: 'var(--color-border)' }}>
             <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1.5">
               <span>Progress</span>
               <span>{Math.round(progress.progressPercent)}%</span>

@@ -71,19 +71,21 @@ function App() {
         toastOptions={{
           duration: 4000,
           style: {
-            background: '#363636',
-            color: '#fff',
+            background: 'var(--color-card)',
+            color: 'var(--color-text)',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-lg)',
           },
           success: {
             iconTheme: {
-              primary: '#10b981',
-              secondary: '#fff',
+              primary: 'var(--color-success)',
+              secondary: 'var(--color-card)',
             },
           },
           error: {
             iconTheme: {
-              primary: '#ef4444',
-              secondary: '#fff',
+              primary: 'var(--color-danger)',
+              secondary: 'var(--color-card)',
             },
           },
         }}
