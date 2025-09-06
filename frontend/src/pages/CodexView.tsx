@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, CheckSquare, Square, FileText, Book } from 'lucide-react';
+import { PlusIcon, PencilSimpleIcon, TrashIcon, CheckSquareIcon, SquareIcon, FileIcon, BookOpenIcon } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ConfirmModal } from '../components/ConfirmModal';
@@ -155,7 +155,7 @@ export const CodexView: React.FC = () => {
       <div className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-start gap-3">
           <div className="p-2 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
-            <Book className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <BookOpenIcon size={20} weight="duotone" className="text-gray-600 dark:text-gray-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">{codex.title}</h1>
@@ -195,7 +195,7 @@ export const CodexView: React.FC = () => {
                 disabled={!newSectionTitle.trim() || isAddingSection}
                 className="btn-primary px-3"
               >
-                <Plus className="w-4 h-4" />
+                <PlusIcon className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -224,9 +224,9 @@ export const CodexView: React.FC = () => {
                           className="mt-0.5 text-gray-500 hover:text-blue-500"
                         >
                           {section.isComplete ? (
-                            <CheckSquare className="w-4 h-4" />
+                            <CheckSquareIcon className="w-4 h-4" />
                           ) : (
-                            <Square className="w-4 h-4" />
+                            <SquareIcon className="w-4 h-4" />
                           )}
                         </button>
                         <span
@@ -247,7 +247,7 @@ export const CodexView: React.FC = () => {
                           }}
                           className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
                         >
-                          <Edit2 className="w-3 h-3" />
+                          <PencilSimpleIcon size={14} weight="regular" />
                         </button>
                         <button
                           onClick={(e) => {
@@ -256,7 +256,7 @@ export const CodexView: React.FC = () => {
                           }}
                           className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/20 text-red-600"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <TrashIcon size={14} weight="regular" />
                         </button>
                       </div>
                     </div>
@@ -265,7 +265,7 @@ export const CodexView: React.FC = () => {
               </div>
             ) : (
               <div className="p-8 text-center text-gray-500">
-                <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                <FileIcon size={48} weight="thin" className="mx-auto mb-3 text-gray-300 dark:text-gray-600" />
                 <p>No manuscripts yet</p>
                 <p className="text-sm mt-1">Add your first manuscript above</p>
               </div>
@@ -285,7 +285,7 @@ export const CodexView: React.FC = () => {
                     onClick={() => navigate(`/codex/${codex.id}/section/${selectedSection.id}/edit`)}
                     className="btn-primary flex items-center gap-2"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <PencilSimpleIcon size={16} weight="regular" />
                     Edit
                   </button>
                 </div>
@@ -302,7 +302,7 @@ export const CodexView: React.FC = () => {
                   />
                 ) : (
                   <div className="text-gray-500 dark:text-gray-400 text-center py-12">
-                    <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                    <FileIcon size={64} weight="thin" className="mx-auto mb-4 text-gray-300 dark:text-gray-600" />
                     <p className="mb-4">This section is empty</p>
                     <button
                       onClick={() => navigate(`/codex/${codex.id}/section/${selectedSection.id}/edit`)}
@@ -317,7 +317,7 @@ export const CodexView: React.FC = () => {
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
               <div className="text-center">
-                <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                <FileIcon size={64} weight="thin" className="mx-auto mb-4 text-gray-300 dark:text-gray-600" />
                 <p>{codex.sections && codex.sections.length > 0 ? 'Select a section to view' : 'Create your first section'}</p>
               </div>
             </div>

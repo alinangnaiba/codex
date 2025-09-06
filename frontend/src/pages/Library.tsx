@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, BookOpen, Pin, Library } from 'lucide-react';
+import { PlusIcon, MagnifyingGlassIcon, BooksIcon, PushPinIcon } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { CodexCard } from '../components/CodexCard';
 import { CreateCodexDialog } from '../components/CreateCodexDialog';
@@ -138,32 +138,27 @@ export const CodexLibrary: React.FC = () => {
   return (
     <div className="h-screen overflow-hidden flex flex-col">
       {/* Header */}
-      <header className="backdrop-blur-md bg-white/70 dark:bg-gray-900/70 border-b border-gray-200/50 dark:border-gray-700/50 px-6 py-5 shadow-sm">
+      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <div className="p-2 rounded-xl">
-              <Library className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-            </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent">My Library</h1>
-          </div>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">My Library</h1>
           <button
             onClick={() => setIsCreateDialogOpen(true)}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center gap-1.5"
           >
-            <Plus className="w-5 h-5" />
-            Codex
+            <PlusIcon size={18} weight="bold" />
+            <span>New Codex</span>
           </button>
         </div>
         
         {/* Search bar */}
         <div className="relative max-w-md">
-          <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400 pointer-events-none" />
+          <MagnifyingGlassIcon size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
             type="text"
             placeholder="Search codexes..."
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
-            className="input pl-11 w-full shadow-sm"
+            className="input pl-10 w-full"
           />
         </div>
       </header>
@@ -172,19 +167,17 @@ export const CodexLibrary: React.FC = () => {
       <div className="flex-1 overflow-y-auto scrollbar-thin p-6">
         {codexes.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full">
-            <div className="p-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl mb-6">
-              <BookOpen className="w-16 h-16 text-gray-400 dark:text-gray-500" />
-            </div>
-            <p className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No codexes yet</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Create your first codex to get started</p>
+            <BooksIcon size={64} weight="thin" className="text-gray-300 dark:text-gray-600 mb-4" />
+            <p className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">No codexes yet</p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">Create your first codex to get started</p>
           </div>
         ) : (
           <>
             {/* Pinned section */}
             {pinnedCodexes.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                  <Pin className="w-4 h-4 text-blue-500" />
+                <h2 className="text-sm font-medium mb-3 flex items-center gap-2 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <PushPinIcon size={14} weight="fill" />
                   <span>Pinned</span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

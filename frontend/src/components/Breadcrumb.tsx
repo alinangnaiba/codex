@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
-import { ChevronRight, Book, Edit3, Library } from 'lucide-react';
+import { useLocation, useParams, Link } from 'react-router-dom';
+import { CaretRightIcon, BookOpenIcon, PencilSimpleIcon, BooksIcon } from '@phosphor-icons/react';
 
 interface BreadcrumbItem {
   label: string;
@@ -23,7 +23,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ codexTitle, sectionTitle
       {
         label: 'My Library',
         path: '/',
-        icon: <Library className="w-4 h-4" />
+        icon: <BooksIcon size={16} weight="duotone" />
       }
     ];
 
@@ -36,14 +36,14 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ codexTitle, sectionTitle
       items.push({
         label: codexTitle || 'Codex',
         path: `/codex/${currentCodexId}`,
-        icon: <Book className="w-4 h-4" />
+        icon: <BookOpenIcon size={16} weight="duotone" />
       });
 
       if (sectionId) {
         items.push({
           label: sectionTitle || 'Edit Section',
           path: `/codex/${currentCodexId}/section/${sectionId}/edit`,
-          icon: <Edit3 className="w-4 h-4" />
+          icon: <PencilSimpleIcon size={16} weight="duotone" />
         });
       }
     }
@@ -65,7 +65,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ codexTitle, sectionTitle
         return (
           <React.Fragment key={item.path}>
             {index > 0 && (
-              <ChevronRight className="w-4 h-4 text-gray-400 dark:text-gray-500 mx-1" />
+              <CaretRightIcon size={16} className="text-gray-400 dark:text-gray-500 mx-1" />
             )}
             {isLast ? (
               <span className="flex items-center gap-1.5 text-gray-900 dark:text-gray-100 font-medium">

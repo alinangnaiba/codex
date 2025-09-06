@@ -1,6 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 /* Import highlight.js theme */
 @import 'highlight.js/styles/github.css';
 
@@ -10,78 +7,68 @@
 
 @layer base {
     :root {
-        /* Professional Light Theme */
-        --color-bg: #F7F8F9;
-        --color-bg-secondary: #F1F3F5;
-        --color-text: #2C3E50;
-        --color-text-muted: #57606A;
-        --color-text-subtle: #6E7781;
-        --color-border: rgba(208, 215, 222, 0.65);
-        --color-border-subtle: rgba(208, 215, 222, 0.32);
-        --color-card: #FDFDFD;
-        --color-card-hover: #FAFBFC;
-        --color-hover: rgba(208, 215, 222, 0.12);
-        --color-accent: #6B9BD1;
-        --color-accent-hover: #5A8BC4;
-        --color-accent-subtle: rgba(107, 155, 209, 0.1);
-        --color-success: #1A7F37;
-        --color-warning: #9A6700;
-        --color-danger: #CF222E;
-        --color-info: #6B9BD1;
+        /* Minimal Light Theme - Obsidian-inspired */
+        --color-bg: #FFFFFF;
+        --color-bg-secondary: #F7F7F7;
+        --color-text: #2E3338;
+        --color-text-muted: #6C7075;
+        --color-text-subtle: #999999;
+        --color-border: rgba(0, 0, 0, 0.07);
+        --color-border-subtle: rgba(0, 0, 0, 0.04);
+        --color-card: #FFFFFF;
+        --color-card-hover: #FAFAFA;
+        --color-hover: rgba(0, 0, 0, 0.03);
+        --color-accent: #5B47E0;
+        --color-accent-hover: #4936CF;
+        --color-accent-subtle: rgba(91, 71, 224, 0.08);
+        --color-success: #2E8B57;
+        --color-warning: #D4A017;
+        --color-danger: #DC3545;
+        --color-info: #5B47E0;
         
-        /* Shadows for elevation */
-        --shadow-xs: 0 1px 0 rgba(27, 31, 36, 0.04);
-        --shadow-sm: 0 1px 3px rgba(27, 31, 36, 0.08), 0 1px 0 rgba(27, 31, 36, 0.04);
-        --shadow-md: 0 3px 6px rgba(27, 31, 36, 0.10), 0 0 0 1px rgba(27, 31, 36, 0.04);
-        --shadow-lg: 0 8px 24px rgba(27, 31, 36, 0.12), 0 0 0 1px rgba(27, 31, 36, 0.04);
-        --shadow-xl: 0 12px 48px rgba(27, 31, 36, 0.18);
-        
-        /* Gradient backgrounds */
-        --gradient-subtle: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
-        --gradient-accent: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+        /* Minimal shadows */
+        --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+        --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+        --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.10);
+        --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
 
     :root.dark {
-        /* Professional Dark Theme */
-        --color-bg: #0D1117;
-        --color-bg-secondary: #161B22;
-        --color-text: #F0F6FC;
-        --color-text-muted: #8B949E;
-        --color-text-subtle: #6E7681;
-        --color-border: rgba(48, 54, 61, 0.75);
-        --color-border-subtle: rgba(48, 54, 61, 0.48);
-        --color-card: #161B22;
-        --color-card-hover: #1C2128;
-        --color-hover: rgba(110, 118, 129, 0.1);
-        --color-accent: #58A6FF;
-        --color-accent-hover: #79B8FF;
-        --color-accent-subtle: rgba(88, 166, 255, 0.15);
-        --color-success: #3FB950;
-        --color-warning: #D29922;
-        --color-danger: #F85149;
-        --color-info: #58A6FF;
+        /* Minimal Dark Theme - Obsidian-inspired */
+        --color-bg: #202020;
+        --color-bg-secondary: #1A1A1A;
+        --color-text: #DCDDDE;
+        --color-text-muted: #999999;
+        --color-text-subtle: #727272;
+        --color-border: rgba(255, 255, 255, 0.08);
+        --color-border-subtle: rgba(255, 255, 255, 0.04);
+        --color-card: #262626;
+        --color-card-hover: #2A2A2A;
+        --color-hover: rgba(255, 255, 255, 0.04);
+        --color-accent: #7C6FF3;
+        --color-accent-hover: #8B7FF4;
+        --color-accent-subtle: rgba(124, 111, 243, 0.12);
+        --color-success: #4CAF50;
+        --color-warning: #FFC107;
+        --color-danger: #F44336;
+        --color-info: #7C6FF3;
         
-        /* Shadows for elevation in dark mode */
-        --shadow-xs: 0 0 0 1px rgba(48, 54, 61, 0.6);
-        --shadow-sm: 0 0 0 1px rgba(48, 54, 61, 0.6), 0 1px 2px rgba(0, 0, 0, 0.3);
-        --shadow-md: 0 0 0 1px rgba(48, 54, 61, 0.6), 0 3px 6px rgba(0, 0, 0, 0.4);
-        --shadow-lg: 0 0 0 1px rgba(48, 54, 61, 0.6), 0 8px 24px rgba(0, 0, 0, 0.5);
-        --shadow-xl: 0 0 0 1px rgba(48, 54, 61, 0.6), 0 12px 48px rgba(0, 0, 0, 0.6);
-        
-        /* Gradient backgrounds for dark mode */
-        --gradient-subtle: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
-        --gradient-accent: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+        /* Minimal shadows for dark mode */
+        --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.5);
+        --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.6);
     }
 
     body {
-        background: var(--gradient-subtle);
+        background: var(--color-bg);
         color: var(--color-text);
-        transition: background-color 0.3s ease, color 0.3s ease;
-        font-feature-settings: "rlig" 1, "calt" 1, "liga" 1;
+        transition: background-color 0.15s ease, color 0.15s ease;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         font-weight: 400;
-        letter-spacing: -0.011em;
         line-height: 1.5;
     }
     
@@ -113,121 +100,101 @@
 
 @layer components {
     .btn-primary {
-        @apply px-4 py-2.5 text-white rounded-lg font-medium;
-        background: var(--gradient-accent);
-        box-shadow: var(--shadow-sm);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
-        @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+        @apply px-3.5 py-2 text-white rounded-md text-sm font-medium;
+        background: var(--color-accent);
+        border: 1px solid var(--color-accent);
+        transition: background-color 0.15s ease;
+        @apply focus:outline-none;
+        @apply disabled:opacity-50 disabled:cursor-not-allowed;
     }
     
     .btn-primary:not(:disabled):hover {
-        transform: translateY(-1px) scale(1.02);
-        box-shadow: var(--shadow-md);
-        filter: brightness(1.05);
+        background: var(--color-accent-hover);
     }
     
     .btn-primary:not(:disabled):active {
-        transform: translateY(0) scale(1);
-        box-shadow: var(--shadow-xs);
+        opacity: 0.9;
     }
     
     .btn-primary:focus-visible {
-        @apply ring-2 ring-offset-2;
-        ring-color: var(--color-accent);
-        ring-offset-color: var(--color-bg);
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
     }
 
     .btn-secondary {
-        @apply px-4 py-2.5 rounded-lg font-medium;
-        background: var(--color-card);
+        @apply px-3.5 py-2 rounded-md text-sm font-medium;
+        background: transparent;
         border: 1px solid var(--color-border);
         color: var(--color-text);
-        box-shadow: var(--shadow-xs);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: background-color 0.15s ease, border-color 0.15s ease;
         @apply focus:outline-none;
-        @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+        @apply disabled:opacity-50 disabled:cursor-not-allowed;
     }
     
     .btn-secondary:not(:disabled):hover {
-        background: var(--color-card-hover);
+        background: var(--color-hover);
         border-color: var(--color-border);
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-sm);
     }
     
     .btn-secondary:not(:disabled):active {
-        transform: translateY(0);
-        box-shadow: none;
+        background: var(--color-hover);
+        opacity: 0.8;
     }
     
     .btn-secondary:focus-visible {
-        @apply ring-2 ring-offset-2;
-        ring-color: var(--color-accent);
-        ring-offset-color: var(--color-bg);
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
     }
     
     /* Icon button variant */
     .btn-icon {
-        @apply p-2 rounded-lg;
+        @apply p-1.5 rounded-md;
         background: transparent;
         color: var(--color-text-muted);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: background-color 0.15s ease, color 0.15s ease;
     }
     
     .btn-icon:hover {
         background: var(--color-hover);
         color: var(--color-text);
-        transform: scale(1.05);
     }
     
     .btn-icon:active {
-        transform: scale(0.95);
+        opacity: 0.7;
     }
 
     .card {
-        @apply rounded-xl;
+        @apply rounded-lg;
         background: var(--color-card);
-        border: 1px solid var(--color-border-subtle);
-        box-shadow: var(--shadow-sm);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid var(--color-border);
+        transition: background-color 0.15s ease, border-color 0.15s ease;
     }
 
     .card-hover:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
-        border-color: var(--color-border);
         background: var(--color-card-hover);
-    }
-    
-    .card-hover:active {
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-md);
+        border-color: var(--color-border);
     }
 
     .input {
-        @apply w-full px-3.5 py-2.5 rounded-lg;
+        @apply w-full px-3 py-2 rounded-md text-sm;
         background: var(--color-bg);
-        border: 1px solid var(--color-border-subtle);
+        border: 1px solid var(--color-border);
         color: var(--color-text);
-        font-size: 0.9375rem;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: border-color 0.15s ease, background-color 0.15s ease;
         @apply focus:outline-none;
     }
     
     .input:hover:not(:focus):not(:disabled) {
         border-color: var(--color-border);
-        background: var(--color-bg-secondary);
     }
     
     .input:focus {
         border-color: var(--color-accent);
-        background: var(--color-card);
-        box-shadow: 0 0 0 3px var(--color-accent-subtle);
+        background: var(--color-bg);
     }
     
     .input:disabled {
-        @apply cursor-not-allowed opacity-60;
+        @apply cursor-not-allowed opacity-50;
         background: var(--color-hover);
     }
     
@@ -417,73 +384,42 @@
 }
 
 @layer utilities {
-    /* Professional scrollbar styles */
+    /* Minimal scrollbar styles */
     .scrollbar-thin {
         scrollbar-width: thin;
-        scrollbar-color: var(--color-border) transparent;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+    }
+    
+    .dark .scrollbar-thin {
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
     }
 
     .scrollbar-thin::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
     }
 
     .scrollbar-thin::-webkit-scrollbar-track {
         background: transparent;
-        margin: 4px;
     }
 
     .scrollbar-thin::-webkit-scrollbar-thumb {
-        background: var(--color-border);
-        border-radius: 10px;
-        border: 2px solid transparent;
-        background-clip: padding-box;
-        transition: all 0.2s;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+    }
+    
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
     }
 
     .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-        background: var(--color-accent);
-        background-clip: padding-box;
+        background: rgba(0, 0, 0, 0.3);
     }
     
-    .scrollbar-thin::-webkit-scrollbar-corner {
-        background: transparent;
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
     }
     
-    /* Loading skeleton animation */
-    @keyframes shimmer {
-        0% {
-            background-position: -468px 0;
-        }
-        100% {
-            background-position: 468px 0;
-        }
-    }
-    
-    .skeleton {
-        animation: shimmer 1.5s infinite;
-        background: linear-gradient(
-            to right,
-            var(--color-bg) 4%,
-            var(--color-hover) 25%,
-            var(--color-bg) 36%
-        );
-        background-size: 1000px 100%;
-    }
-    
-    /* Pulse animation for loading states */
-    @keyframes pulse-subtle {
-        0%, 100% {
-            opacity: 1;
-        }
-        50% {
-            opacity: 0.5;
-        }
-    }
-    
-    .animate-pulse-subtle {
-        animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
 }
 
 html, body, #app {

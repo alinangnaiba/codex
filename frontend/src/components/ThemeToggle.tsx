@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon } from '@phosphor-icons/react';
 import { useTheme } from '../contexts/ThemeContext';
 
 export const ThemeToggle: React.FC = () => {
@@ -8,13 +8,13 @@ export const ThemeToggle: React.FC = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+      className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
     >
       {theme === 'light' ? (
-        <Moon className="w-5 h-5" />
+        <Moon size={20} weight="regular" className="text-gray-600 dark:text-gray-400" />
       ) : (
-        <Sun className="w-5 h-5" />
+        <Sun size={20} weight="regular" className="text-gray-600 dark:text-gray-400" />
       )}
     </button>
   );

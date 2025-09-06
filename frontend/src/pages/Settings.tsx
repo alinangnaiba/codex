@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, FolderOpen, Sun, Moon, Check } from 'lucide-react';
+import { ArrowLeftIcon, FloppyDiskIcon, FolderOpenIcon, SunIcon, MoonIcon, CheckIcon } from '@phosphor-icons/react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useTheme } from '../contexts/ThemeContext';
 import { settingsAPI, fileAPI } from '../utils/api';
@@ -119,7 +119,7 @@ export const Settings: React.FC = () => {
             onClick={() => navigate('/')}
             className="mb-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeftIcon className="w-5 h-5" />
             Back to Library
           </button>
           
@@ -145,10 +145,10 @@ export const Settings: React.FC = () => {
                   : 'border-gray-300/50 dark:border-gray-600/50 hover:border-gray-400 dark:hover:border-gray-500'
               }`}
             >
-              <Sun className="w-8 h-8" />
+              <SunIcon className="w-5 h-5" />
               <span className="font-medium">Light</span>
               {theme === 'light' && (
-                <Check className="w-5 h-5 text-blue-500" />
+                <CheckIcon className="w-5 h-5 text-blue-500" />
               )}
             </button>
             
@@ -160,10 +160,10 @@ export const Settings: React.FC = () => {
                   : 'border-gray-300/50 dark:border-gray-600/50 hover:border-gray-400 dark:hover:border-gray-500'
               }`}
             >
-              <Moon className="w-8 h-8" />
+              <MoonIcon className="w-5 h-5" />
               <span className="font-medium">Dark</span>
               {theme === 'dark' && (
-                <Check className="w-5 h-5 text-blue-500" />
+                <CheckIcon className="w-5 h-5 text-blue-500" />
               )}
             </button>
           </div>
@@ -252,7 +252,7 @@ export const Settings: React.FC = () => {
                   disabled={useDefaultLocation}
                   className="btn-secondary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <FolderOpen className="w-4 h-4" />
+                  <FolderOpenIcon className="w-4 h-4" />
                   Browse
                 </button>
               </div>
@@ -306,7 +306,7 @@ export const Settings: React.FC = () => {
               </>
             ) : (
               <>
-                <Save className="w-4 h-4" />
+                <FloppyDiskIcon size={16} weight="regular" />
                 Save Changes
               </>
             )}

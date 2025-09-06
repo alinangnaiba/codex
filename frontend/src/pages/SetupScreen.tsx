@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FolderOpen, Moon, Sun } from 'lucide-react';
+import { FolderOpenIcon, MoonIcon, SunIcon } from '@phosphor-icons/react';
 import { useTheme } from '../contexts/ThemeContext';
 import { settingsAPI, fileAPI } from '../utils/api';
 
@@ -90,7 +90,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
                   : 'border-gray-300 dark:border-gray-700 hover:border-gray-400'
               }`}
             >
-              <Sun className="w-6 h-6 mx-auto mb-1" />
+              <SunIcon className="w-6 h-6 mx-auto mb-1" />
               <span className="text-sm">Light</span>
             </button>
             <button
@@ -101,7 +101,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
                   : 'border-gray-300 dark:border-gray-700 hover:border-gray-400'
               }`}
             >
-              <Moon className="w-6 h-6 mx-auto mb-1" />
+              <MoonIcon className="w-6 h-6 mx-auto mb-1" />
               <span className="text-sm">Dark</span>
             </button>
           </div>
@@ -182,7 +182,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
                     onClick={handleSelectDirectory}
                     className="btn-secondary flex items-center gap-2"
                   >
-                    <FolderOpen className="w-4 h-4" />
+                    <FolderOpenIcon className="w-4 h-4" />
                     Browse
                   </button>
                 </div>
