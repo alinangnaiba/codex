@@ -100,16 +100,18 @@
 
 @layer components {
     .btn-primary {
-        @apply px-3.5 py-2 text-white rounded-md text-sm font-medium;
-        background: var(--color-accent);
-        border: 1px solid var(--color-accent);
-        transition: background-color 0.15s ease;
+        @apply px-3.5 py-2 rounded-md text-sm font-medium;
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--color-text);
+        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
         @apply focus:outline-none;
         @apply disabled:opacity-50 disabled:cursor-not-allowed;
     }
     
     .btn-primary:not(:disabled):hover {
-        background: var(--color-accent-hover);
+        background: transparent;
+        border: 1px solid var(--color-border);
     }
     
     .btn-primary:not(:disabled):active {
@@ -124,7 +126,7 @@
     .btn-secondary {
         @apply px-3.5 py-2 rounded-md text-sm font-medium;
         background: transparent;
-        border: 1px solid var(--color-border);
+        border: 1px solid transparent;
         color: var(--color-text);
         transition: background-color 0.15s ease, border-color 0.15s ease;
         @apply focus:outline-none;
@@ -132,8 +134,8 @@
     }
     
     .btn-secondary:not(:disabled):hover {
-        background: var(--color-hover);
-        border-color: var(--color-border);
+        background: transparent;
+        border: 1px solid var(--color-border);
     }
     
     .btn-secondary:not(:disabled):active {
