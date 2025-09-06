@@ -19,7 +19,7 @@ export const Settings: React.FC = () => {
   const [saveMessage, setSaveMessage] = useState('');
   
   // Ref to track timeouts for cleanup
-  const saveMessageTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveMessageTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     loadSettings();
