@@ -25,19 +25,19 @@ func (r *CodexRepository) Create(title, description string) (*models.Codex, erro
 		INSERT INTO codexes (title, description, created_at, updated_at)
 		VALUES (?, ?, ?, ?)
 	`
-	
+
 	now := time.Now()
-	
+
 	result, err := r.db.conn.Exec(query, title, description, now, now)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create codex: %w", err)
 	}
-	
+
 	id, err := result.LastInsertId()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get last insert id: %w", err)
 	}
-	
+
 	// Fetch the created codex
 	codex := &models.Codex{
 		ID:          int(id),
@@ -47,7 +47,7 @@ func (r *CodexRepository) Create(title, description string) (*models.Codex, erro
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}
-	
+
 	return codex, nil
 }
 
@@ -58,13 +58,13 @@ func (r *CodexRepository) GetAll() ([]models.Codex, error) {
 		FROM codexes
 		ORDER BY is_pinned DESC, updated_at DESC
 	`
-	
+
 	rows, err := r.db.conn.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codexes: %w", err)
 	}
 	defer rows.Close()
-	
+
 	codexes := make([]models.Codex, 0)
 	for rows.Next() {
 		var codex models.Codex
@@ -81,7 +81,7 @@ func (r *CodexRepository) GetAll() ([]models.Codex, error) {
 		}
 		codexes = append(codexes, codex)
 	}
-	
+
 	return codexes, nil
 }
 
@@ -92,7 +92,7 @@ func (r *CodexRepository) GetByID(id int) (*models.Codex, error) {
 		FROM codexes
 		WHERE id = ?
 	`
-	
+
 	var codex models.Codex
 	err := r.db.conn.QueryRow(query, id).Scan(
 		&codex.ID,
@@ -102,14 +102,14 @@ func (r *CodexRepository) GetByID(id int) (*models.Codex, error) {
 		&codex.CreatedAt,
 		&codex.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("codex not found")
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to get codex: %w", err)
 	}
-	
+
 	return &codex, nil
 }
 
@@ -120,42 +120,42 @@ func (r *CodexRepository) Update(id int, title, description string) error {
 		SET title = ?, description = ?, updated_at = ?
 		WHERE id = ?
 	`
-	
+
 	result, err := r.db.conn.Exec(query, title, description, time.Now(), id)
 	if err != nil {
 		return fmt.Errorf("failed to update codex: %w", err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("failed to get rows affected: %w", err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return fmt.Errorf("codex not found")
 	}
-	
+
 	return nil
 }
 
 // Delete deletes a codex
 func (r *CodexRepository) Delete(id int) error {
 	query := `DELETE FROM codexes WHERE id = ?`
-	
+
 	result, err := r.db.conn.Exec(query, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete codex: %w", err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("failed to get rows affected: %w", err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return fmt.Errorf("codex not found")
 	}
-	
+
 	return nil
 }
 
@@ -166,21 +166,21 @@ func (r *CodexRepository) SetPinned(id int, isPinned bool) error {
 		SET is_pinned = ?, updated_at = ?
 		WHERE id = ?
 	`
-	
+
 	result, err := r.db.conn.Exec(query, isPinned, time.Now(), id)
 	if err != nil {
 		return fmt.Errorf("failed to update pin status: %w", err)
 	}
-	
+
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 		return fmt.Errorf("failed to get rows affected: %w", err)
 	}
-	
+
 	if rowsAffected == 0 {
 		return fmt.Errorf("codex not found")
 	}
-	
+
 	return nil
 }
 
@@ -193,13 +193,13 @@ func (r *CodexRepository) Search(query string) ([]models.Codex, error) {
 		WHERE LOWER(title) LIKE ? OR LOWER(description) LIKE ?
 		ORDER BY is_pinned DESC, updated_at DESC
 	`
-	
+
 	rows, err := r.db.conn.Query(sqlQuery, searchTerm, searchTerm)
 	if err != nil {
 		return nil, fmt.Errorf("failed to search codexes: %w", err)
 	}
 	defer rows.Close()
-	
+
 	codexes := make([]models.Codex, 0)
 	for rows.Next() {
 		var codex models.Codex
@@ -216,7 +216,7 @@ func (r *CodexRepository) Search(query string) ([]models.Codex, error) {
 		}
 		codexes = append(codexes, codex)
 	}
-	
+
 	return codexes, nil
 }
 
@@ -226,20 +226,20 @@ func (r *CodexRepository) GetWithSections(id int) (*models.CodexWithSections, er
 	if err != nil {
 		return nil, err
 	}
-	
+
 	sectionsQuery := `
 		SELECT id, codex_id, title, file_path, is_complete, order_index, created_at, updated_at
 		FROM sections
 		WHERE codex_id = ?
 		ORDER BY order_index ASC
 	`
-	
+
 	rows, err := r.db.conn.Query(sectionsQuery, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sections: %w", err)
 	}
 	defer rows.Close()
-	
+
 	var sections []models.Section
 	for rows.Next() {
 		var section models.Section
@@ -258,7 +258,7 @@ func (r *CodexRepository) GetWithSections(id int) (*models.CodexWithSections, er
 		}
 		sections = append(sections, section)
 	}
-	
+
 	return &models.CodexWithSections{
 		Codex:    *codex,
 		Sections: sections,
@@ -274,23 +274,23 @@ func (r *CodexRepository) GetProgress(id int) (*models.CodexProgress, error) {
 		FROM sections
 		WHERE codex_id = ?
 	`
-	
+
 	var total, completed int
 	err := r.db.conn.QueryRow(query, id).Scan(&total, &completed)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get progress: %w", err)
 	}
-	
+
 	progress := &models.CodexProgress{
 		CodexID:           id,
 		TotalSections:     total,
 		CompletedSections: completed,
 		ProgressPercent:   0,
 	}
-	
+
 	if total > 0 {
 		progress.ProgressPercent = float32(completed) / float32(total) * 100
 	}
-	
+
 	return progress, nil
 }

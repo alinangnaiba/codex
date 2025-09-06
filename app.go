@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 
 	"codex-wails/internal/database"
+	"codex-wails/internal/dto"
+	"codex-wails/internal/mappers"
 	"codex-wails/internal/models"
 	"codex-wails/internal/storage"
 
@@ -15,11 +17,11 @@ import (
 
 // App struct
 type App struct {
-	ctx          context.Context
-	db           *database.DB
-	codexRepo    *database.CodexRepository
-	sectionRepo  *database.SectionRepository
-	settingsRepo *database.SettingsRepository
+	ctx            context.Context
+	db             *database.DB
+	codexRepo      *database.CodexRepository
+	sectionRepo    *database.SectionRepository
+	settingsRepo   *database.SettingsRepository
 	storageService *storage.Service
 }
 
@@ -61,7 +63,7 @@ func (a *App) initializeServices() error {
 
 	appDataDir := filepath.Join(homeDir, ".codex")
 	runtime.LogInfof(a.ctx, "App data directory: %s", appDataDir)
-	
+
 	if err := os.MkdirAll(appDataDir, 0755); err != nil {
 		return fmt.Errorf("failed to create app data directory: %w", err)
 	}
@@ -112,54 +114,59 @@ func (a *App) initializeServices() error {
 // --- Codex API Functions ---
 
 // GetAllCodexes retrieves all codexes
-func (a *App) GetAllCodexes() ([]models.Codex, error) {
+func (a *App) GetAllCodexes() ([]dto.CodexResponse, error) {
 	if a.codexRepo == nil {
-		return []models.Codex{}, fmt.Errorf("repository not initialized")
+		return []dto.CodexResponse{}, fmt.Errorf("repository not initialized")
 	}
-	
+
 	codexes, err := a.codexRepo.GetAll()
 	if err != nil {
-		return []models.Codex{}, err
+		return []dto.CodexResponse{}, err
 	}
-	
+
 	// Ensure we return an empty array instead of nil
 	if codexes == nil {
-		return []models.Codex{}, nil
+		return []dto.CodexResponse{}, nil
 	}
-	
-	return codexes, nil
+
+	return mappers.ToCodexResponseList(codexes), nil
 }
 
 // SearchCodexes searches for codexes by query
-func (a *App) SearchCodexes(query string) ([]models.Codex, error) {
+func (a *App) SearchCodexes(query string) ([]dto.CodexResponse, error) {
 	if a.codexRepo == nil {
-		return []models.Codex{}, fmt.Errorf("repository not initialized")
+		return []dto.CodexResponse{}, fmt.Errorf("repository not initialized")
 	}
-	
+
 	var codexes []models.Codex
 	var err error
-	
+
 	if query == "" {
 		codexes, err = a.codexRepo.GetAll()
 	} else {
 		codexes, err = a.codexRepo.Search(query)
 	}
-	
+
 	if err != nil {
-		return []models.Codex{}, err
+		return []dto.CodexResponse{}, err
 	}
-	
+
 	// Ensure we return an empty array instead of nil
 	if codexes == nil {
-		return []models.Codex{}, nil
+		return []dto.CodexResponse{}, nil
 	}
-	
-	return codexes, nil
+
+	return mappers.ToCodexResponseList(codexes), nil
 }
 
 // CreateCodex creates a new codex
-func (a *App) CreateCodex(title, description string) (*models.Codex, error) {
-	return a.codexRepo.Create(title, description)
+func (a *App) CreateCodex(title, description string) (*dto.CodexResponse, error) {
+	codex, err := a.codexRepo.Create(title, description)
+	if err != nil {
+		return nil, err
+	}
+
+	return mappers.ToCodexResponse(codex), nil
 }
 
 // UpdateCodex updates a codex
@@ -184,20 +191,35 @@ func (a *App) PinCodex(id int, isPinned bool) error {
 }
 
 // GetCodexWithSections retrieves a codex with all its sections
-func (a *App) GetCodexWithSections(id int) (*models.CodexWithSections, error) {
-	return a.codexRepo.GetWithSections(id)
+func (a *App) GetCodexWithSections(id int) (*dto.CodexWithSectionsResponse, error) {
+	codex, err := a.codexRepo.GetWithSections(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return mappers.ToCodexWithSectionsResponse(codex), nil
 }
 
 // GetCodexProgress retrieves the reading progress of a codex
-func (a *App) GetCodexProgress(id int) (*models.CodexProgress, error) {
-	return a.codexRepo.GetProgress(id)
+func (a *App) GetCodexProgress(id int) (*dto.CodexProgressResponse, error) {
+	progress, err := a.codexRepo.GetProgress(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return mappers.ToCodexProgressResponse(progress), nil
 }
 
 // --- Section API Functions ---
 
 // CreateSection creates a new section in a codex
-func (a *App) CreateSection(codexID int, title string) (*models.Section, error) {
-	return a.sectionRepo.Create(codexID, title)
+func (a *App) CreateSection(codexID int, title string) (*dto.SectionResponse, error) {
+	section, err := a.sectionRepo.Create(codexID, title)
+	if err != nil {
+		return nil, err
+	}
+
+	return mappers.ToSectionResponse(section), nil
 }
 
 // UpdateSection updates a section's title and content
@@ -256,8 +278,13 @@ func (a *App) SetSectionComplete(id int, isComplete bool) error {
 }
 
 // GetSectionsByCodex retrieves all sections for a codex
-func (a *App) GetSectionsByCodex(codexID int) ([]models.Section, error) {
-	return a.sectionRepo.GetByCodexID(codexID)
+func (a *App) GetSectionsByCodex(codexID int) ([]dto.SectionResponse, error) {
+	sections, err := a.sectionRepo.GetByCodexID(codexID)
+	if err != nil {
+		return []dto.SectionResponse{}, err
+	}
+
+	return mappers.ToSectionResponseList(sections), nil
 }
 
 // --- Settings API Functions ---
@@ -339,14 +366,14 @@ func (a *App) CheckInitialized() (bool, error) {
 		runtime.LogError(a.ctx, "Settings repository is nil in CheckInitialized")
 		return false, fmt.Errorf("settings repository not initialized")
 	}
-	
+
 	initialized, err := a.settingsRepo.Get("initialized")
 	if err != nil {
 		// This is expected on first run when the setting doesn't exist
 		runtime.LogInfo(a.ctx, "Initialized setting not found, assuming first run")
 		return false, nil
 	}
-	
+
 	result := initialized == "true"
 	runtime.LogInfof(a.ctx, "CheckInitialized returning: %v", result)
 	return result, nil
@@ -358,7 +385,7 @@ func (a *App) GetDefaultContentPath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get home directory: %w", err)
 	}
-	
+
 	defaultPath := filepath.Join(homeDir, ".codex", "content")
 	return defaultPath, nil
 }
