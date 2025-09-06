@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pin, Edit2, Trash2, Book } from 'lucide-react';
+import { PushPinIcon, PencilSimpleIcon, TrashIcon, BookIcon } from '@phosphor-icons/react';
 import { Codex, CodexProgress } from '../utils/api';
 
 interface CodexCardProps {
@@ -23,84 +23,85 @@ export const CodexCard: React.FC<CodexCardProps> = ({
 
   return (
     <div
-      className="card card-hover p-6 cursor-pointer relative group"
+      className="card card-hover p-5 cursor-pointer relative group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onOpen(codex)}
     >
       {/* Pin indicator */}
-      {codex.isPinned && (
-        <div className="absolute top-2 right-2 text-blue-500">
-          <Pin className="w-4 h-4 fill-current" />
+      {codex.isPinned && !isHovered && (
+        <div className="absolute top-3 right-3">
+          <PushPinIcon size={16} weight="fill" className="text-gray-400 dark:text-gray-500" />
         </div>
       )}
 
       {/* Action buttons */}
       <div
-        className={`absolute top-2 right-2 flex gap-1 transition-opacity duration-200 ${
-          isHovered ? 'opacity-100' : 'opacity-0'
+        className={`absolute top-2 right-2 flex gap-0.5 rounded-md border transition-opacity duration-150 ${
+          isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
+        style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}
       >
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onTogglePin(codex);
+            onDelete(codex);
           }}
-          className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
-          title={codex.isPinned ? 'Unpin' : 'Pin'}
+          className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors duration-150 rounded-r-md"
+          title="Delete"
         >
-          <Pin className={`w-4 h-4 ${codex.isPinned ? 'fill-current' : ''}`} />
+          <TrashIcon size={16} weight="regular" className="text-red-500" />
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
             onEdit(codex);
           }}
-          className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+          className="p-1.5 hover-bg border-x border-gray-200 dark:border-gray-700"
           title="Edit"
         >
-          <Edit2 className="w-4 h-4" />
+          <PencilSimpleIcon size={16} weight="regular" className="text-gray-500 dark:text-gray-200" />
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onDelete(codex);
+            onTogglePin(codex);
           }}
-          className="p-1.5 rounded hover:bg-red-100 dark:hover:bg-red-900/20 text-red-600"
-          title="Delete"
+          className="p-1.5 hover-bg rounded-l-md"
+          title={codex.isPinned ? 'Unpin' : 'Pin'}
         >
-          <Trash2 className="w-4 h-4" />
+          <PushPinIcon size={16} weight={codex.isPinned ? 'fill' : 'regular'} className={codex.isPinned ? 'text-accent' : 'text-gray-500 dark:text-gray-200'} />
         </button>
       </div>
 
       {/* Content */}
       <div className="flex flex-col h-full">
         <div className="flex items-start gap-3 mb-3">
-          <Book className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
-          <h3 className="font-semibold text-lg line-clamp-2">{codex.title}</h3>
+          <BookIcon size={20} weight="duotone" className="text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" />
+          <h3 className="font-medium text-base line-clamp-2" style={{ color: 'var(--color-text)' }}>{codex.title}</h3>
         </div>
         
         {codex.description && (
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mb-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">
             {codex.description}
           </p>
         )}
 
         {/* Progress bar */}
         {progress && progress.totalSections > 0 && (
-          <div className="mt-auto">
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+          <div className="mt-auto pt-3 border-t" style={{ borderColor: 'var(--color-border)' }}>
+            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1.5">
               <span>Progress</span>
               <span>{Math.round(progress.progressPercent)}%</span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
               <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress.progressPercent}%` }}
+                className="bg-accent h-1.5 rounded-full transition-all duration-300"
+                style={{ width: `${progress.progressPercent}%`, backgroundColor: 'var(--color-accent)' }}
               />
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              {progress.completedSections} of {progress.totalSections} sections complete
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              {progress.completedSections} of {progress.totalSections} sections
             </p>
           </div>
         )}

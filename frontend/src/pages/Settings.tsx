@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, FolderOpen, Sun, Moon, Check } from 'lucide-react';
+import { ArrowLeftIcon, FloppyDiskIcon, FolderOpenIcon, SunIcon, MoonIcon, CheckIcon } from '@phosphor-icons/react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useTheme } from '../contexts/ThemeContext';
 import { settingsAPI, fileAPI } from '../utils/api';
@@ -117,9 +117,9 @@ export const Settings: React.FC = () => {
         <div className="mb-8">
           <button
             onClick={() => navigate('/')}
-            className="mb-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors inline-flex items-center gap-2"
+            className="mb-4 p-2 rounded-lg hover-bg inline-flex items-center gap-2"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeftIcon className="w-5 h-5" />
             Back to Library
           </button>
           
@@ -130,7 +130,7 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* Theme Selection */}
-        <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="mb-8 p-6 rounded-lg border" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
           <h2 className="text-xl font-semibold mb-4">Appearance</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Choose your preferred color theme
@@ -139,45 +139,47 @@ export const Settings: React.FC = () => {
           <div className="grid grid-cols-2 gap-3 max-w-md">
             <button
               onClick={() => setTheme('light')}
-              className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${
+              className={`p-4 rounded-lg border-2 transition-all duration-150 flex flex-col items-center gap-2 ${
                 theme === 'light'
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                  ? 'border-current'
+                  : 'border-gray-300/50 dark:border-gray-600/50 hover:border-gray-400 dark:hover:border-gray-500'
               }`}
+              style={theme === 'light' ? { borderColor: 'var(--color-accent)', backgroundColor: 'var(--color-accent-subtle)' } : {}}
             >
-              <Sun className="w-8 h-8" />
+              <SunIcon className="w-5 h-5" />
               <span className="font-medium">Light</span>
               {theme === 'light' && (
-                <Check className="w-5 h-5 text-blue-500" />
+                <CheckIcon className="w-5 h-5 text-blue-500" />
               )}
             </button>
             
             <button
               onClick={() => setTheme('dark')}
-              className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center gap-2 ${
+              className={`p-4 rounded-lg border-2 transition-all duration-150 flex flex-col items-center gap-2 ${
                 theme === 'dark'
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                  ? 'border-current'
+                  : 'border-gray-300/50 dark:border-gray-600/50 hover:border-gray-400 dark:hover:border-gray-500'
               }`}
+              style={theme === 'dark' ? { borderColor: 'var(--color-accent)', backgroundColor: 'var(--color-accent-subtle)' } : {}}
             >
-              <Moon className="w-8 h-8" />
+              <MoonIcon className="w-5 h-5" />
               <span className="font-medium">Dark</span>
               {theme === 'dark' && (
-                <Check className="w-5 h-5 text-blue-500" />
+                <CheckIcon className="w-5 h-5 text-blue-500" />
               )}
             </button>
           </div>
         </div>
 
         {/* Editor Settings */}
-        <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="mb-8 p-6 rounded-lg border" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
           <h2 className="text-xl font-semibold mb-4">Editor</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Configure your editing experience
           </p>
           
           {/* Auto-save Toggle */}
-          <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+          <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--color-hover)' }}>
             <div className="flex-1">
               <label className="block text-sm font-medium mb-1">
                 Enable Auto-save
@@ -202,7 +204,7 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* Content Directory */}
-        <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="mb-8 p-6 rounded-lg border" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
           <h2 className="text-xl font-semibold mb-4">Content Storage</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Choose where your markdown files are stored
@@ -210,7 +212,7 @@ export const Settings: React.FC = () => {
           
           <div className="space-y-4">
             {/* Default Location Toggle */}
-            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--color-hover)' }}>
               <div className="flex-1">
                 <label className="block text-sm font-medium mb-1">
                   Use Default Location
@@ -244,7 +246,8 @@ export const Settings: React.FC = () => {
                   value={useDefaultLocation ? '' : contentPath}
                   onChange={(e) => setContentPath(e.target.value)}
                   disabled={useDefaultLocation}
-                  className="input flex-1 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
+                  className="input flex-1 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: useDefaultLocation ? 'var(--color-hover)' : undefined }}
                   placeholder={useDefaultLocation ? `Using default location (${defaultContentPath})` : 'Enter custom directory path...'}
                 />
                 <button
@@ -252,7 +255,7 @@ export const Settings: React.FC = () => {
                   disabled={useDefaultLocation}
                   className="btn-secondary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <FolderOpen className="w-4 h-4" />
+                  <FolderOpenIcon className="w-4 h-4" />
                   Browse
                 </button>
               </div>
@@ -267,7 +270,7 @@ export const Settings: React.FC = () => {
         </div>
 
         {/* About Section */}
-        <div className="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="mb-8 p-6 rounded-lg border" style={{ backgroundColor: 'var(--color-card)', borderColor: 'var(--color-border)' }}>
           <h2 className="text-xl font-semibold mb-4">About CodeX</h2>
           <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
             <p>
@@ -306,7 +309,7 @@ export const Settings: React.FC = () => {
               </>
             ) : (
               <>
-                <Save className="w-4 h-4" />
+                <FloppyDiskIcon size={16} weight="regular" />
                 Save Changes
               </>
             )}

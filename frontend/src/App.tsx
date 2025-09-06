@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { Library } from './pages/Library';
+import { BreadcrumbProvider } from './contexts/BreadcrumbContext';
+import { CodexLibrary } from './pages/Library';
 import { CodexView } from './pages/CodexView';
 import { SectionEditor } from './pages/SectionEditor';
 import { SetupScreen } from './pages/SetupScreen';
@@ -44,46 +45,52 @@ function App() {
   if (!isInitialized) {
     return (
       <ThemeProvider>
-        <SetupScreen onComplete={handleSetupComplete} />
+        <BreadcrumbProvider>
+          <SetupScreen onComplete={handleSetupComplete} />
+        </BreadcrumbProvider>
       </ThemeProvider>
     );
   }
 
   return (
     <ThemeProvider>
-      <BrowserRouter>
+      <BreadcrumbProvider>
+        <BrowserRouter>
         <Routes>
           <Route path="/" element={<AppLayout />}>
-            <Route index element={<Library />} />
+            <Route index element={<CodexLibrary />} />
             <Route path="settings" element={<Settings />} />
             <Route path="codex/:id" element={<CodexView />} />
             <Route path="codex/:codexId/section/:sectionId/edit" element={<SectionEditor />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
-      </BrowserRouter>
-      <Toaster 
+        </BrowserRouter>
+        <Toaster 
         position="top-right"
         toastOptions={{
           duration: 4000,
           style: {
-            background: '#363636',
-            color: '#fff',
+            background: 'var(--color-card)',
+            color: 'var(--color-text)',
+            border: '1px solid var(--color-border)',
+            boxShadow: 'var(--shadow-lg)',
           },
           success: {
             iconTheme: {
-              primary: '#10b981',
-              secondary: '#fff',
+              primary: 'var(--color-success)',
+              secondary: 'var(--color-card)',
             },
           },
           error: {
             iconTheme: {
-              primary: '#ef4444',
-              secondary: '#fff',
+              primary: 'var(--color-danger)',
+              secondary: 'var(--color-card)',
             },
           },
         }}
-      />
+        />
+      </BreadcrumbProvider>
     </ThemeProvider>
   );
 }

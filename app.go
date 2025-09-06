@@ -6,8 +6,13 @@ import (
 	"os"
 	"path/filepath"
 
+	"codex-wails/internal/adapters"
 	"codex-wails/internal/database"
-	"codex-wails/internal/models"
+	"codex-wails/internal/domain/codex"
+	"codex-wails/internal/domain/file"
+	"codex-wails/internal/domain/section"
+	"codex-wails/internal/domain/settings"
+	"codex-wails/internal/dto"
 	"codex-wails/internal/storage"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -15,12 +20,17 @@ import (
 
 // App struct
 type App struct {
-	ctx          context.Context
-	db           *database.DB
-	codexRepo    *database.CodexRepository
-	sectionRepo  *database.SectionRepository
-	settingsRepo *database.SettingsRepository
+	ctx context.Context
+
+	// Core services
+	db             *database.DB
 	storageService *storage.Service
+
+	// Domain handlers
+	codexHandler    *codex.Handler
+	sectionHandler  *section.Handler
+	settingsHandler *settings.Handler
+	fileHandler     *file.Handler
 }
 
 // NewApp creates a new App application struct
@@ -61,7 +71,7 @@ func (a *App) initializeServices() error {
 
 	appDataDir := filepath.Join(homeDir, ".codex")
 	runtime.LogInfof(a.ctx, "App data directory: %s", appDataDir)
-	
+
 	if err := os.MkdirAll(appDataDir, 0755); err != nil {
 		return fmt.Errorf("failed to create app data directory: %w", err)
 	}
@@ -76,23 +86,23 @@ func (a *App) initializeServices() error {
 	runtime.LogInfo(a.ctx, "Database initialized")
 
 	// Initialize repositories
-	a.codexRepo = database.NewCodexRepository(db)
-	a.sectionRepo = database.NewSectionRepository(db)
-	a.settingsRepo = database.NewSettingsRepository(db)
+	codexRepo := database.NewCodexRepository(db)
+	sectionRepo := database.NewSectionRepository(db)
+	settingsRepo := database.NewSettingsRepository(db)
 	runtime.LogInfo(a.ctx, "Repositories initialized")
 
 	// Set default settings
-	if err := a.settingsRepo.SetDefaults(); err != nil {
+	if err := settingsRepo.SetDefaults(); err != nil {
 		return fmt.Errorf("failed to set default settings: %w", err)
 	}
 	runtime.LogInfo(a.ctx, "Default settings applied")
 
 	// Get content path from settings
-	contentPath, err := a.settingsRepo.Get("contentPath")
+	contentPath, err := settingsRepo.Get("contentPath")
 	if err != nil || contentPath == "" {
 		// Use default content path if not set
 		contentPath = filepath.Join(appDataDir, "content")
-		a.settingsRepo.Set("contentPath", contentPath)
+		settingsRepo.Set("contentPath", contentPath)
 		runtime.LogInfof(a.ctx, "Using default content path: %s", contentPath)
 	} else {
 		runtime.LogInfof(a.ctx, "Using existing content path: %s", contentPath)
@@ -106,247 +116,162 @@ func (a *App) initializeServices() error {
 	a.storageService = storageService
 	runtime.LogInfo(a.ctx, "Storage service initialized")
 
+	// Initialize adapters
+	storageAdapter := adapters.NewStorageServiceAdapter(storageService)
+
+	// Initialize domain repositories
+	codexDomainRepo := codex.NewRepository(codexRepo)
+	sectionDomainRepo := section.NewRepository(sectionRepo)
+	settingsDomainRepo := settings.NewRepository(settingsRepo)
+
+	// Initialize domain services
+	codexService := codex.NewService(codexDomainRepo, storageAdapter)
+	sectionService := section.NewService(sectionDomainRepo, storageAdapter)
+	settingsService := settings.NewService(settingsDomainRepo, storageAdapter)
+	fileService := file.NewService(storageAdapter)
+
+	// Initialize domain handlers
+	a.codexHandler = codex.NewHandler(codexService)
+	a.sectionHandler = section.NewHandler(sectionService)
+	a.settingsHandler = settings.NewHandler(settingsService, a.updateStorageService)
+	a.fileHandler = file.NewHandler(fileService, a.ctx)
+	runtime.LogInfo(a.ctx, "Domain handlers initialized")
+
+	return nil
+}
+
+// updateStorageService updates the storage service when content path changes
+func (a *App) updateStorageService(newPath string) error {
+	storageService, err := storage.NewService(newPath)
+	if err != nil {
+		return err
+	}
+	a.storageService = storageService
 	return nil
 }
 
 // --- Codex API Functions ---
 
 // GetAllCodexes retrieves all codexes
-func (a *App) GetAllCodexes() ([]models.Codex, error) {
-	if a.codexRepo == nil {
-		return []models.Codex{}, fmt.Errorf("repository not initialized")
-	}
-	
-	codexes, err := a.codexRepo.GetAll()
-	if err != nil {
-		return []models.Codex{}, err
-	}
-	
-	// Ensure we return an empty array instead of nil
-	if codexes == nil {
-		return []models.Codex{}, nil
-	}
-	
-	return codexes, nil
+func (a *App) GetAllCodexes() ([]dto.CodexResponse, error) {
+	return a.codexHandler.GetAll()
 }
 
 // SearchCodexes searches for codexes by query
-func (a *App) SearchCodexes(query string) ([]models.Codex, error) {
-	if a.codexRepo == nil {
-		return []models.Codex{}, fmt.Errorf("repository not initialized")
-	}
-	
-	var codexes []models.Codex
-	var err error
-	
-	if query == "" {
-		codexes, err = a.codexRepo.GetAll()
-	} else {
-		codexes, err = a.codexRepo.Search(query)
-	}
-	
-	if err != nil {
-		return []models.Codex{}, err
-	}
-	
-	// Ensure we return an empty array instead of nil
-	if codexes == nil {
-		return []models.Codex{}, nil
-	}
-	
-	return codexes, nil
+func (a *App) SearchCodexes(query string) ([]dto.CodexResponse, error) {
+	return a.codexHandler.Search(query)
 }
 
 // CreateCodex creates a new codex
-func (a *App) CreateCodex(title, description string) (*models.Codex, error) {
-	return a.codexRepo.Create(title, description)
+func (a *App) CreateCodex(title, description string) (*dto.CodexResponse, error) {
+	return a.codexHandler.Create(title, description)
 }
 
 // UpdateCodex updates a codex
 func (a *App) UpdateCodex(id int, title, description string) error {
-	return a.codexRepo.Update(id, title, description)
+	return a.codexHandler.Update(id, title, description)
 }
 
 // DeleteCodex deletes a codex and its content
 func (a *App) DeleteCodex(id int) error {
-	// Delete content files
-	if err := a.storageService.DeleteCodexContent(id); err != nil {
-		return fmt.Errorf("failed to delete codex content: %w", err)
-	}
-
-	// Delete from database (sections will be deleted by cascade)
-	return a.codexRepo.Delete(id)
+	return a.codexHandler.Delete(id)
 }
 
 // PinCodex sets the pinned status of a codex
 func (a *App) PinCodex(id int, isPinned bool) error {
-	return a.codexRepo.SetPinned(id, isPinned)
+	return a.codexHandler.SetPinned(id, isPinned)
 }
 
 // GetCodexWithSections retrieves a codex with all its sections
-func (a *App) GetCodexWithSections(id int) (*models.CodexWithSections, error) {
-	return a.codexRepo.GetWithSections(id)
+func (a *App) GetCodexWithSections(id int) (*dto.CodexWithSectionsResponse, error) {
+	return a.codexHandler.GetWithSections(id)
 }
 
 // GetCodexProgress retrieves the reading progress of a codex
-func (a *App) GetCodexProgress(id int) (*models.CodexProgress, error) {
-	return a.codexRepo.GetProgress(id)
+func (a *App) GetCodexProgress(id int) (*dto.CodexProgressResponse, error) {
+	return a.codexHandler.GetProgress(id)
 }
 
 // --- Section API Functions ---
 
 // CreateSection creates a new section in a codex
-func (a *App) CreateSection(codexID int, title string) (*models.Section, error) {
-	return a.sectionRepo.Create(codexID, title)
+func (a *App) CreateSection(codexID int, title string) (*dto.SectionResponse, error) {
+	return a.sectionHandler.Create(codexID, title)
 }
 
 // UpdateSection updates a section's title and content
 func (a *App) UpdateSection(id int, title, content string) error {
-	// Update title in database
-	if err := a.sectionRepo.Update(id, title); err != nil {
-		return err
-	}
-
-	// Get section to get codexID
-	section, err := a.sectionRepo.GetByID(id)
-	if err != nil {
-		return err
-	}
-
-	// Save content to file
-	filePath, err := a.storageService.SaveContent(section.CodexID, id, content)
-	if err != nil {
-		return fmt.Errorf("failed to save content: %w", err)
-	}
-
-	// Update file path in database
-	return a.sectionRepo.UpdateContent(id, filePath)
+	return a.sectionHandler.Update(id, title, content)
 }
 
 // GetSectionContent retrieves the content of a section
 func (a *App) GetSectionContent(sectionID int) (string, error) {
-	section, err := a.sectionRepo.GetByID(sectionID)
-	if err != nil {
-		return "", err
-	}
-
-	return a.storageService.ReadContent(section.FilePath)
+	return a.sectionHandler.GetContent(sectionID)
 }
 
 // DeleteSection deletes a section
 func (a *App) DeleteSection(id int) error {
-	// Get section to get file path
-	section, err := a.sectionRepo.GetByID(id)
-	if err != nil {
-		return err
-	}
-
-	// Delete content file
-	if err := a.storageService.DeleteContent(section.FilePath); err != nil {
-		return fmt.Errorf("failed to delete content: %w", err)
-	}
-
-	// Delete from database
-	return a.sectionRepo.Delete(id)
+	return a.sectionHandler.Delete(id)
 }
 
 // SetSectionComplete sets the completion status of a section
 func (a *App) SetSectionComplete(id int, isComplete bool) error {
-	return a.sectionRepo.SetComplete(id, isComplete)
+	return a.sectionHandler.SetComplete(id, isComplete)
 }
 
 // GetSectionsByCodex retrieves all sections for a codex
-func (a *App) GetSectionsByCodex(codexID int) ([]models.Section, error) {
-	return a.sectionRepo.GetByCodexID(codexID)
+func (a *App) GetSectionsByCodex(codexID int) ([]dto.SectionResponse, error) {
+	return a.sectionHandler.GetByCodexID(codexID)
 }
 
 // --- Settings API Functions ---
 
 // GetSettings retrieves all settings as a map
 func (a *App) GetSettings() (map[string]string, error) {
-	return a.settingsRepo.GetAllAsMap()
+	return a.settingsHandler.GetAll()
 }
 
 // SaveSettings saves multiple settings at once
 func (a *App) SaveSettings(settings map[string]string) error {
-	// If content path has changed, update storage service
-	if newPath, ok := settings["contentPath"]; ok {
-		// Validate the new path
-		if err := a.storageService.ValidateStoragePath(newPath); err != nil {
-			return fmt.Errorf("invalid storage path: %w", err)
-		}
-
-		// Update storage service
-		storageService, err := storage.NewService(newPath)
-		if err != nil {
-			return fmt.Errorf("failed to update storage service: %w", err)
-		}
-		a.storageService = storageService
-	}
-
-	return a.settingsRepo.SetBatch(settings)
+	return a.settingsHandler.SaveBatch(settings)
 }
 
 // GetSetting retrieves a specific setting
 func (a *App) GetSetting(key string) (string, error) {
-	return a.settingsRepo.Get(key)
+	return a.settingsHandler.Get(key)
 }
 
 // SetSetting sets a specific setting
 func (a *App) SetSetting(key, value string) error {
-	return a.settingsRepo.Set(key, value)
+	return a.settingsHandler.Set(key, value)
 }
 
 // --- File Operations ---
 
 // ImportMarkdownFile imports content from a markdown file
 func (a *App) ImportMarkdownFile(filePath string) (string, error) {
-	return a.storageService.ImportMarkdownFile(filePath)
+	return a.fileHandler.ImportMarkdownFile(filePath)
 }
 
 // SelectDirectory opens a directory picker dialog
 func (a *App) SelectDirectory() (string, error) {
-	dir, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select Content Directory",
-	})
-	if err != nil {
-		return "", err
-	}
-	return dir, nil
+	return a.fileHandler.SelectDirectory()
 }
 
 // SelectMarkdownFile opens a file picker dialog for markdown files
 func (a *App) SelectMarkdownFile() (string, error) {
-	file, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Import Markdown File",
-		Filters: []runtime.FileFilter{
-			{
-				DisplayName: "Markdown Files (*.md)",
-				Pattern:     "*.md;*.markdown",
-			},
-		},
-	})
-	if err != nil {
-		return "", err
-	}
-	return file, nil
+	return a.fileHandler.SelectMarkdownFile()
 }
 
 // CheckInitialized checks if the app has been initialized
 func (a *App) CheckInitialized() (bool, error) {
-	// Check if repos are initialized
-	if a.settingsRepo == nil {
-		runtime.LogError(a.ctx, "Settings repository is nil in CheckInitialized")
-		return false, fmt.Errorf("settings repository not initialized")
-	}
-	
-	initialized, err := a.settingsRepo.Get("initialized")
+	initialized, err := a.settingsHandler.Get("initialized")
 	if err != nil {
 		// This is expected on first run when the setting doesn't exist
 		runtime.LogInfo(a.ctx, "Initialized setting not found, assuming first run")
 		return false, nil
 	}
-	
+
 	result := initialized == "true"
 	runtime.LogInfof(a.ctx, "CheckInitialized returning: %v", result)
 	return result, nil
@@ -358,7 +283,7 @@ func (a *App) GetDefaultContentPath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get home directory: %w", err)
 	}
-	
+
 	defaultPath := filepath.Join(homeDir, ".codex", "content")
 	return defaultPath, nil
 }

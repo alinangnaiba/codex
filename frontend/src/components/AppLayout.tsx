@@ -1,38 +1,35 @@
 import React from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { BookOpen, Home, Settings as SettingsIcon } from 'lucide-react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { GearIcon } from '@phosphor-icons/react';
+import { Breadcrumb } from './Breadcrumb';
+import { useBreadcrumb } from '../contexts/BreadcrumbContext';
+import iconImage from '../assets/images/icon.png';
 
 export const AppLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const isHome = location.pathname === '/';
+  const { codexTitle, sectionTitle } = useBreadcrumb();
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col" style={{ backgroundColor: 'var(--color-bg)' }}>
       {/* Top navigation bar */}
-      <header className="border-b border-gray-200 dark:border-gray-700 px-4 py-2 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          {!isHome && (
-            <Link
-              to="/"
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              title="Back to Library"
-            >
-              <Home className="w-5 h-5" />
-            </Link>
-          )}
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-blue-500" />
-            <span className="font-semibold text-lg">CodeX</span>
+      <header className="border-b px-4 py-3" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2.5">
+              <img src={iconImage} alt="CodeX" className="w-6 h-6" />
+              <span className="font-semibold text-lg" style={{ color: 'var(--color-text)' }}>CodeX</span>
+            </div>
+            <Breadcrumb codexTitle={codexTitle} sectionTitle={sectionTitle} />
           </div>
+          <button
+            onClick={() => navigate('/settings')}
+            className="p-2 rounded-md hover-bg"
+            title="Settings"
+          >
+            <GearIcon size={20} weight="regular" className="text-gray-600 dark:text-gray-400" />
+          </button>
         </div>
-        <button
-          onClick={() => navigate('/settings')}
-          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          title="Settings"
-        >
-          <SettingsIcon className="w-5 h-5" />
-        </button>
       </header>
 
       {/* Main content */}

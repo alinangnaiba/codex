@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, BookOpen, Pin } from 'lucide-react';
+import { PlusIcon, MagnifyingGlassIcon, BooksIcon, PushPinIcon } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { CodexCard } from '../components/CodexCard';
 import { CreateCodexDialog } from '../components/CreateCodexDialog';
@@ -8,7 +8,7 @@ import { ConfirmModal } from '../components/ConfirmModal';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { codexAPI, Codex, CodexProgress } from '../utils/api';
 
-export const Library: React.FC = () => {
+export const CodexLibrary: React.FC = () => {
   const navigate = useNavigate();
   const [codexes, setCodexes] = useState<Codex[]>([]);
   const [progressMap, setProgressMap] = useState<Map<number, CodexProgress>>(new Map());
@@ -138,24 +138,24 @@ export const Library: React.FC = () => {
   return (
     <div className="h-screen overflow-hidden flex flex-col">
       {/* Header */}
-      <header className="border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+      <header className="border-b px-6 py-4" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <BookOpen className="w-6 h-6 text-blue-500" />
-            <h1 className="text-2xl font-bold">My Library</h1>
-          </div>
+          <h1 className="text-xl font-semibold flex items-center gap-2" style={{ color: 'var(--color-text)' }}>
+            <BooksIcon size={24} weight="duotone" className="text-gray-600 dark:text-gray-400" />
+            <span>My Library</span>
+          </h1>
           <button
             onClick={() => setIsCreateDialogOpen(true)}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center gap-1.5"
           >
-            <Plus className="w-5 h-5" />
-            New Codex
+            <PlusIcon size={18} weight="bold" />
+            <span>New Codex</span>
           </button>
         </div>
         
         {/* Search bar */}
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <MagnifyingGlassIcon size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
           <input
             type="text"
             placeholder="Search codexes..."
@@ -169,19 +169,19 @@ export const Library: React.FC = () => {
       {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-6">
         {codexes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
-            <BookOpen className="w-16 h-16 mb-4" />
-            <p className="text-lg mb-2">No codexes yet</p>
-            <p className="text-sm">Create your first codex to get started</p>
+          <div className="flex flex-col items-center justify-center h-full">
+            <BooksIcon size={64} weight="thin" className="text-gray-300 dark:text-gray-600 mb-4" />
+            <p className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">No codexes yet</p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">Create your first codex to get started</p>
           </div>
         ) : (
           <>
             {/* Pinned section */}
             {pinnedCodexes.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Pin className="w-4 h-4" />
-                  Pinned
+                <h2 className="text-sm font-medium mb-3 flex items-center gap-2 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <PushPinIcon size={14} weight="fill" />
+                  <span>Pinned</span>
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {pinnedCodexes.map(codex => (
@@ -203,7 +203,7 @@ export const Library: React.FC = () => {
             {unpinnedCodexes.length > 0 && (
               <div>
                 <h2 className="text-lg font-semibold mb-4">
-                  {pinnedCodexes.length > 0 ? 'All Codexes' : 'My Codexes'}
+                  All
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {unpinnedCodexes.map(codex => (
