@@ -143,7 +143,6 @@ func (r *SectionRepository) GetByCodexID(codexID int) ([]models.Section, error) 
 	return sections, nil
 }
 
-// Update updates a section's title
 func (r *SectionRepository) Update(id int, title string) error {
 	query := `
 		UPDATE sections
@@ -168,7 +167,6 @@ func (r *SectionRepository) Update(id int, title string) error {
 	return nil
 }
 
-// UpdateContent updates a section's file path
 func (r *SectionRepository) UpdateContent(id int, filePath string) error {
 	query := `
 		UPDATE sections
@@ -193,7 +191,6 @@ func (r *SectionRepository) UpdateContent(id int, filePath string) error {
 	return nil
 }
 
-// SetComplete sets the completion status of a section
 func (r *SectionRepository) SetComplete(id int, isComplete bool) error {
 	query := `
 		UPDATE sections
