@@ -81,13 +81,10 @@ export const CodexView: React.FC = () => {
       setIsAddingSection(true);
       const newSection = await sectionAPI.create(codex.id, newSectionTitle.trim());
       
-      // Reload codex to get updated sections
-      await loadCodex(codex.id);
-      
-      // Select the new section
-      setSelectedSection(newSection);
       setNewSectionTitle('');
       toast.success('Section added successfully');
+      
+      navigate(`/codex/${codex.id}/section/${newSection.id}/edit`);
     } catch (error) {
       console.error('Failed to add section:', error);
       toast.error('Failed to add section');
