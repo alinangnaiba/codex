@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, FloppyDiskIcon, FolderOpenIcon, SunIcon, MoonIcon, CheckIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, FolderOpenIcon, SunIcon, MoonIcon, CheckIcon } from '@phosphor-icons/react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useTheme } from '../contexts/ThemeContext';
 import { settingsAPI, fileAPI } from '../utils/api';
+import toast from 'react-hot-toast';
+
 
 export const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +19,6 @@ export const Settings: React.FC = () => {
   const [wordWrap, setWordWrap] = useState(true);
   const [originalWordWrap, setOriginalWordWrap] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   
   // Ref to track timeouts for cleanup
@@ -75,10 +76,12 @@ export const Settings: React.FC = () => {
       const dir = await fileAPI.selectDirectory();
       if (dir) {
         setContentPath(dir);
+        // Auto-save the selected directory
+        autoSaveSettings({ contentPath: dir });
       }
     } catch (error) {
       console.error('Failed to select directory:', error);
-      alert('Failed to select directory. Please try again.');
+      toast.error('Failed to select directory. Please try again.');
     }
   };
 
@@ -86,43 +89,60 @@ export const Settings: React.FC = () => {
     setUseDefaultLocation(isDefault);
     if (isDefault) {
       setContentPath('');
+      // Save with default path
+      autoSaveSettings({ contentPath: defaultContentPath });
     }
   };
 
-  const handleSave = async () => {
+  // Auto-save individual settings
+  const autoSaveSettings = async (settingsToSave: { [key: string]: string }) => {
     try {
-      setIsSaving(true);
       setSaveMessage('');
-
-      const settings: { [key: string]: string } = {
-        theme: theme,
-        contentPath: useDefaultLocation ? defaultContentPath : contentPath,
-        autoSave: autoSave.toString(),
-        wordWrap: wordWrap.toString(),
-      };
-
-      await settingsAPI.save(settings);
-      setOriginalContentPath(useDefaultLocation ? defaultContentPath : contentPath);
-      setOriginalAutoSave(autoSave);
+      await settingsAPI.save(settingsToSave);
+      
+      // Update original values for the changed settings
+      if (settingsToSave.autoSave !== undefined) {
+        setOriginalAutoSave(settingsToSave.autoSave === 'true');
+      }
+      if (settingsToSave.wordWrap !== undefined) {
+        setOriginalWordWrap(settingsToSave.wordWrap === 'true');
+      }
+      if (settingsToSave.contentPath !== undefined) {
+        setOriginalContentPath(settingsToSave.contentPath);
+      }
+      
       setSaveMessage('Settings saved successfully!');
       
-      // Clear success message after 3 seconds with proper cleanup
+      // Clear success message after 2 seconds
       if (saveMessageTimeoutRef.current) {
         clearTimeout(saveMessageTimeoutRef.current);
       }
       saveMessageTimeoutRef.current = setTimeout(() => {
         setSaveMessage('');
         saveMessageTimeoutRef.current = null;
-      }, 3000);
+      }, 2000);
     } catch (error) {
       console.error('Failed to save settings:', error);
       setSaveMessage('Failed to save settings. Please try again.');
-    } finally {
-      setIsSaving(false);
     }
   };
 
-  const hasChanges = (useDefaultLocation ? defaultContentPath : contentPath) !== originalContentPath || autoSave !== originalAutoSave || wordWrap !== originalWordWrap;
+  // Handle auto-save toggle
+  const handleAutoSaveToggle = () => {
+    const newValue = !autoSave;
+    setAutoSave(newValue);
+    autoSaveSettings({ autoSave: newValue.toString() });
+  };
+
+  // Handle content path changes
+  const handleContentPathChange = (newPath: string) => {
+    setContentPath(newPath);
+    // Only auto-save if we have a valid path and not using default
+    if (!useDefaultLocation && newPath.trim()) {
+      autoSaveSettings({ contentPath: newPath.trim() });
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -212,7 +232,7 @@ export const Settings: React.FC = () => {
                 </p>
               </div>
               <button
-                onClick={() => setAutoSave(!autoSave)}
+                onClick={handleAutoSaveToggle}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                   autoSave ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
                 }`}
@@ -225,7 +245,8 @@ export const Settings: React.FC = () => {
               </button>
             </div>
             
-            {/* Word Wrap Toggle */}
+            {/* Word Wrap Toggle - Temporarily disabled */}
+            {/* 
             <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--color-hover)' }}>
               <div className="flex-1">
                 <label className="block text-sm font-medium mb-1">
@@ -248,6 +269,7 @@ export const Settings: React.FC = () => {
                 />
               </button>
             </div>
+            */}
           </div>
         </div>
 
@@ -292,7 +314,7 @@ export const Settings: React.FC = () => {
                 <input
                   type="text"
                   value={useDefaultLocation ? '' : contentPath}
-                  onChange={(e) => setContentPath(e.target.value)}
+                  onChange={(e) => handleContentPathChange(e.target.value)}
                   disabled={useDefaultLocation}
                   className="input flex-1 disabled:cursor-not-allowed"
                   style={{ backgroundColor: useDefaultLocation ? 'var(--color-hover)' : undefined }}
@@ -333,35 +355,15 @@ export const Settings: React.FC = () => {
           </div>
         </div>
 
-        {/* Save Button and Messages */}
-        <div className="flex items-center justify-between">
-          <div>
-            {saveMessage && (
-              <p className={`text-sm ${
-                saveMessage.includes('success') ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {saveMessage}
-              </p>
-            )}
-          </div>
-          
-          <button
-            onClick={handleSave}
-            disabled={isSaving || !hasChanges}
-            className="btn-primary flex items-center gap-2"
-          >
-            {isSaving ? (
-              <>
-                <LoadingSpinner size="sm" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <FloppyDiskIcon size={16} weight="regular" />
-                Save Changes
-              </>
-            )}
-          </button>
+        {/* Status Messages */}
+        <div className="text-center">
+          {saveMessage && (
+            <p className={`text-sm ${
+              saveMessage.includes('success') ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {saveMessage}
+            </p>
+          )}
         </div>
       </div>
     </div>

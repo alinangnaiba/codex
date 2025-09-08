@@ -1,5 +1,19 @@
 import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js/lib/core';
+// @ts-expect-error - No official types available
+import markdownItFootnote from 'markdown-it-footnote';
+// @ts-expect-error - No official types available
+import markdownItSub from 'markdown-it-sub';
+// @ts-expect-error - No official types available
+import markdownItSup from 'markdown-it-sup';
+// @ts-expect-error - No official types available
+import markdownItTaskLists from 'markdown-it-task-lists';
+// @ts-expect-error - No official types available
+import markdownItMark from 'markdown-it-mark';
+// @ts-expect-error - No official types available
+import markdownItDeflist from 'markdown-it-deflist';
+// @ts-expect-error - Uses named export, not default
+import { full as markdownItEmoji } from 'markdown-it-emoji';
 
 // Import common languages for syntax highlighting
 import javascript from 'highlight.js/lib/languages/javascript';
@@ -145,7 +159,14 @@ export const md: MarkdownIt = new MarkdownIt({
     const displayName = lang ? getLanguageDisplayName(lang) : 'Code';
     return `<pre class="hljs bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto relative" data-language="${displayName}"><code class="hljs">${md.utils.escapeHtml(str)}</code></pre>`;
   }
-});
+})
+  .use(markdownItFootnote)
+  .use(markdownItSub)
+  .use(markdownItSup)
+  .use(markdownItTaskLists, { enabled: true })
+  .use(markdownItMark)
+  .use(markdownItDeflist)
+  .use(markdownItEmoji);
 
 md.enable([
   'table',
