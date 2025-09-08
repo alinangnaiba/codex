@@ -142,13 +142,11 @@ export const md: MarkdownIt = new MarkdownIt({
       }
     }
     
-    // Default fallback for unknown languages or highlighting failures
     const displayName = lang ? getLanguageDisplayName(lang) : 'Code';
     return `<pre class="hljs bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto relative" data-language="${displayName}"><code class="hljs">${md.utils.escapeHtml(str)}</code></pre>`;
   }
 });
 
-// Enable all default rules
 md.enable([
   'table',
   'code',
@@ -163,10 +161,105 @@ md.enable([
   'paragraph'
 ]);
 
-// Custom renderer for inline code (keep the existing styling)
+md.renderer.rules.heading_open = function(tokens: any, idx: number, options: any, env: any, renderer: any): string {
+  const token = tokens[idx];
+  const level = token.markup.length;
+  
+  if (level === 2 || level === 3) {
+    const textToken = tokens[idx + 1];
+    if (textToken && textToken.type === 'inline') {
+      const headingText = textToken.content;
+      const id = generateHeadingId(headingText);
+      return `<h${level} id="${id}">`;
+    }
+  }
+  
+  return `<h${level}>`;
+};
+
 md.renderer.rules.code_inline = function(tokens: any, idx: number, options: any, env: any, renderer: any): string {
   const token = tokens[idx];
   return `<code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono">${md.utils.escapeHtml(token.content)}</code>`;
+};
+
+export interface HeadingInfo {
+  text: string;
+  id: string;
+  level: number;
+}
+
+export interface NestedHeading extends HeadingInfo {
+  children: HeadingInfo[];
+}
+
+export const createNestedHeadings = (headings: HeadingInfo[]): NestedHeading[] => {
+  const nested: NestedHeading[] = [];
+  let currentH2: NestedHeading | null = null;
+
+  for (const heading of headings) {
+    if (heading.level === 2) {
+      // Create new H2 heading with children array
+      currentH2 = {
+        ...heading,
+        children: []
+      };
+      nested.push(currentH2);
+    } else if (heading.level === 3 && currentH2) {
+      // Add H3 as child of current H2
+      currentH2.children.push(heading);
+    } else if (heading.level === 3 && !currentH2) {
+      // H3 without parent H2 - create a standalone entry
+      nested.push({
+        ...heading,
+        children: []
+      });
+    }
+  }
+
+  return nested;
+};
+
+export const extractHeadings = (markdownContent: string): HeadingInfo[] => {
+  const headings: HeadingInfo[] = [];
+  const lines = markdownContent.split('\n');
+  
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    
+    if (trimmedLine.startsWith('## ') && !trimmedLine.startsWith('### ')) {
+      const text = trimmedLine.substring(3).trim();
+      if (text) {
+        const id = generateHeadingId(text);
+        headings.push({
+          text,
+          id,
+          level: 2
+        });
+      }
+    }
+    else if (trimmedLine.startsWith('### ') && !trimmedLine.startsWith('#### ')) {
+      const text = trimmedLine.substring(4).trim();
+      if (text) {
+        const id = generateHeadingId(text);
+        headings.push({
+          text,
+          id,
+          level: 3
+        });
+      }
+    }
+  }
+  
+  return headings;
+};
+
+
+export const generateHeadingId = (text: string): string => {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .trim();
 };
 
 export default md;
