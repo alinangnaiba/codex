@@ -159,10 +159,12 @@ func (r *SettingsRepository) Delete(key string) error {
 // SetDefaults sets default settings if they don't exist
 func (r *SettingsRepository) SetDefaults() error {
 	defaults := map[string]string{
-		"theme":        "light",
-		"contentPath":  "",
-		"autoSave":     "false",
-		"initialized":  "false",
+		"theme":              "light",
+		"contentPath":        "",
+		"autoSave":           "false",
+		"initialized":        "false",
+		"logRetentionDays":   "7",    // Default 7 days log retention
+		"logLevel":           "warn", // Production default: warn
 	}
 	
 	for key, defaultValue := range defaults {

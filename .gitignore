@@ -1,6 +1,6 @@
 # Build outputs
-/build/
 /build/bin/
+/build/windows/
 
 # Frontend build artifacts (Vite / Parcel / general)
 frontend/dist/
@@ -16,6 +16,8 @@ frontend/node_modules/
 # Environment files
 .env
 .env.local
+.env.production
+.env.production.local
 frontend/.env
 frontend/.env.local
 
@@ -26,6 +28,25 @@ bin/
 *.dll
 *.so
 *.dylib
+
+# Production logs
+*.log
+logs/
+
+# Development database
+.codex-dev/
+
+# Wails build cache
+wails.json.bak
+*.syso
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
 
 # Logs
 npm-debug.log*

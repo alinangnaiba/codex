@@ -29,21 +29,32 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   // Load theme from settings on mount
   useEffect(() => {
+    let isMounted = true; // Track component mount status
+
     const loadTheme = async () => {
       try {
         const savedTheme = await settingsAPI.get('theme');
-        if (savedTheme === 'dark' || savedTheme === 'light') {
+        if (isMounted && (savedTheme === 'dark' || savedTheme === 'light')) {
           setThemeState(savedTheme);
           applyTheme(savedTheme);
         }
       } catch (error) {
-        console.error('Failed to load theme:', error);
+        if (isMounted) {
+          console.error('Failed to load theme:', error);
+        }
       } finally {
-        setIsLoaded(true);
+        if (isMounted) {
+          setIsLoaded(true);
+        }
       }
     };
 
     loadTheme();
+
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const applyTheme = (newTheme: Theme) => {
@@ -59,12 +70,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     setThemeState(newTheme);
     applyTheme(newTheme);
     
-    // Save to settings
-    try {
-      await settingsAPI.set('theme', newTheme);
-    } catch (error) {
+    // Save to settings (fire and forget to prevent memory leaks)
+    settingsAPI.set('theme', newTheme).catch((error) => {
       console.error('Failed to save theme:', error);
-    }
+    });
   };
 
   const toggleTheme = () => {
