@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, FloppyDiskIcon, FileIcon, EyeIcon, CodeIcon, UploadSimpleIcon, TextHOneIcon, TextHTwoIcon, TextHThreeIcon, TextBIcon, TextItalicIcon, CodeBlockIcon, ListBulletsIcon, ListNumbersIcon, LinkIcon, QuotesIcon } from '@phosphor-icons/react';
+import { ArrowLeftIcon, FloppyDiskIcon, FileIcon, EyeIcon, CodeIcon, UploadSimpleIcon, TextHOneIcon, TextHTwoIcon, TextHThreeIcon, TextBIcon, TextItalicIcon, CodeBlockIcon, ListBulletsIcon, ListNumbersIcon, LinkIcon, QuotesIcon, TextAlignLeftIcon, ArrowsOutLineHorizontalIcon } from '@phosphor-icons/react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
+import { LineNumbers } from '../components/LineNumbers';
 import { sectionAPI, codexAPI, fileAPI, settingsAPI } from '../utils/api';
 import { useBreadcrumb } from '../contexts/BreadcrumbContext';
 import md from '../utils/markdown';
@@ -19,6 +20,8 @@ export const SectionEditor: React.FC = () => {
   const [showPreview, setShowPreview] = useState(true);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [autoSaveEnabled, setAutoSaveEnabled] = useState(false);
+  const [wordWrapEnabled, setWordWrapEnabled] = useState(true);
+  const editorRef = useRef<HTMLTextAreaElement>(null);
 
   // Use refs to capture latest values for interval callback
   const latestContentRef = useRef(content);
@@ -52,16 +55,21 @@ export const SectionEditor: React.FC = () => {
     if (sectionId) {
       loadSection(parseInt(sectionId));
     }
-    loadAutoSaveSetting();
+    loadSettings();
   }, [sectionId]);
 
-  const loadAutoSaveSetting = async () => {
+  const loadSettings = async () => {
     try {
       const autoSave = await settingsAPI.get('autoSave');
       setAutoSaveEnabled(autoSave === 'true');
+      
+      const wordWrap = await settingsAPI.get('wordWrap');
+      // Default to true if not set
+      setWordWrapEnabled(wordWrap !== 'false');
     } catch (error) {
-      console.error('Failed to load auto-save setting:', error);
+      console.error('Failed to load settings:', error);
       setAutoSaveEnabled(false);
+      setWordWrapEnabled(true);
     }
   };
 
@@ -187,6 +195,9 @@ export const SectionEditor: React.FC = () => {
           insertMarkdown('*', '*');
           break;
       }
+    } else if (e.altKey && e.key === 'z') {
+      e.preventDefault();
+      setWordWrapEnabled(prev => !prev);
     }
   }, [content]);
 
@@ -347,6 +358,20 @@ export const SectionEditor: React.FC = () => {
           >
             <QuotesIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
           </button>
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+          <button
+            onClick={() => setWordWrapEnabled(!wordWrapEnabled)}
+            className={`p-2 rounded-md hover-bg ${
+              wordWrapEnabled ? 'bg-gray-200 dark:bg-gray-700' : ''
+            }`}
+            title={wordWrapEnabled ? 'Disable word wrap (Alt+Z)' : 'Enable word wrap (Alt+Z)'}
+          >
+            {wordWrapEnabled ? (
+              <TextAlignLeftIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
+            ) : (
+              <ArrowsOutLineHorizontalIcon size={18} weight="regular" className="text-gray-600 dark:text-gray-400" />
+            )}
+          </button>
         </div>
       </div>
 
@@ -354,15 +379,38 @@ export const SectionEditor: React.FC = () => {
       <div className="flex-1 flex overflow-hidden">
         {/* Editor */}
         <div className={showPreview ? 'w-1/2' : 'w-full'}>
-          <textarea
-            id="markdown-editor"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="w-full h-full p-6 resize-none focus:outline-none font-mono text-sm"
-            style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}
-            placeholder="Start writing in Markdown...\n\n# Heading 1\n## Heading 2\n\n**Bold text** and *italic text*\n\n- List item\n- Another item\n\n[Link text](https://example.com)"
-          />
+          <div className="flex h-full relative">
+            {/* Line numbers */}
+            <LineNumbers 
+              content={content}
+              wordWrapEnabled={wordWrapEnabled}
+              editorRef={editorRef}
+            />
+            
+            {/* Editor textarea */}
+            <div className="flex-1 relative overflow-hidden">
+              <textarea
+                ref={editorRef}
+                id="markdown-editor"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="absolute inset-0 pr-6 pl-4 pt-6 resize-none focus:outline-none font-mono text-sm editor-textarea"
+                style={{ 
+                  backgroundColor: 'var(--color-bg)', 
+                  color: 'var(--color-text)',
+                  lineHeight: '1.5rem',
+                  overflowY: 'auto',
+                  overflowX: wordWrapEnabled ? 'hidden' : 'auto',
+                  whiteSpace: wordWrapEnabled ? 'pre-wrap' : 'pre',
+                  wordBreak: wordWrapEnabled ? 'break-word' : 'normal',
+                  overflowWrap: wordWrapEnabled ? 'break-word' : 'normal',
+                  paddingBottom: '50vh' // Extra bottom padding to allow scrolling past the last line
+                }}
+                placeholder="Start writing in Markdown...\n\n# Heading 1\n## Heading 2\n\n**Bold text** and *italic text*\n\n- List item\n- Another item\n\n[Link text](https://example.com)"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Preview */}

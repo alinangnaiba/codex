@@ -14,6 +14,8 @@ export const Settings: React.FC = () => {
   const [useDefaultLocation, setUseDefaultLocation] = useState(true);
   const [autoSave, setAutoSave] = useState(false);
   const [originalAutoSave, setOriginalAutoSave] = useState(false);
+  const [wordWrap, setWordWrap] = useState(true);
+  const [originalWordWrap, setOriginalWordWrap] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
@@ -56,6 +58,11 @@ export const Settings: React.FC = () => {
       const autoSaveValue = settings.autoSave === 'true';
       setAutoSave(autoSaveValue);
       setOriginalAutoSave(autoSaveValue);
+      
+      // Set word wrap setting (default to true if not set)
+      const wordWrapValue = settings.wordWrap !== 'false';
+      setWordWrap(wordWrapValue);
+      setOriginalWordWrap(wordWrapValue);
     } catch (error) {
       console.error('Failed to load settings:', error);
     } finally {
@@ -91,6 +98,7 @@ export const Settings: React.FC = () => {
         theme: theme,
         contentPath: useDefaultLocation ? defaultContentPath : contentPath,
         autoSave: autoSave.toString(),
+        wordWrap: wordWrap.toString(),
       };
 
       await settingsAPI.save(settings);
@@ -114,7 +122,7 @@ export const Settings: React.FC = () => {
     }
   };
 
-  const hasChanges = (useDefaultLocation ? defaultContentPath : contentPath) !== originalContentPath || autoSave !== originalAutoSave;
+  const hasChanges = (useDefaultLocation ? defaultContentPath : contentPath) !== originalContentPath || autoSave !== originalAutoSave || wordWrap !== originalWordWrap;
 
   if (isLoading) {
     return (
@@ -192,28 +200,54 @@ export const Settings: React.FC = () => {
             Configure your editing experience
           </p>
           
-          {/* Auto-save Toggle */}
-          <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--color-hover)' }}>
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">
-                Enable Auto-save
-              </label>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Automatically save content changes every 30 seconds while editing
-              </p>
-            </div>
-            <button
-              onClick={() => setAutoSave(!autoSave)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                autoSave ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
-                  autoSave ? 'translate-x-6' : 'translate-x-1'
+          <div className="space-y-4">
+            {/* Auto-save Toggle */}
+            <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--color-hover)' }}>
+              <div className="flex-1">
+                <label className="block text-sm font-medium mb-1">
+                  Enable Auto-save
+                </label>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Automatically save content changes every 30 seconds while editing
+                </p>
+              </div>
+              <button
+                onClick={() => setAutoSave(!autoSave)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  autoSave ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
                 }`}
-              />
-            </button>
+              >
+                <span
+                  className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
+                    autoSave ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            
+            {/* Word Wrap Toggle */}
+            <div className="flex items-center justify-between p-4 rounded-lg" style={{ backgroundColor: 'var(--color-hover)' }}>
+              <div className="flex-1">
+                <label className="block text-sm font-medium mb-1">
+                  Enable Word Wrap
+                </label>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Wrap long lines in the editor (like VS Code). When disabled, shows horizontal scrollbar.
+                </p>
+              </div>
+              <button
+                onClick={() => setWordWrap(!wordWrap)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  wordWrap ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${
+                    wordWrap ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
         </div>
 
