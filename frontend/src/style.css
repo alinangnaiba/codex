@@ -430,6 +430,53 @@
     .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
         background: rgba(255, 255, 255, 0.3);
     }
+
+    /* Editor with line numbers styles */
+    .line-numbers {
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+
+    .line-numbers::-webkit-scrollbar {
+        display: none;
+    }
+
+    .line-numbers {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Editor textarea styling */
+    .editor-textarea {
+        tab-size: 4;
+        -moz-tab-size: 4;
+        /* Word wrap is controlled dynamically via inline styles based on settings */
+    }
+
+    /* Synchronize line height and padding */
+    .editor-textarea,
+    .line-numbers {
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 0.875rem;
+        line-height: 1.5rem;
+    }
+
+    /* VS Code-like line number hover effect */
+    .line-numbers > div {
+        transition: color 0.15s ease;
+    }
+
+    .line-numbers:hover > div {
+        color: var(--color-text-muted);
+    }
+
+    /* Current line highlight (optional enhancement) */
+    .line-numbers > div.current-line {
+        color: var(--color-text);
+        font-weight: 600;
+    }
     
 }
 

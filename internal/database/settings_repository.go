@@ -162,6 +162,7 @@ func (r *SettingsRepository) SetDefaults() error {
 		"theme":              "light",
 		"contentPath":        "",
 		"autoSave":           "false",
+		"wordWrap":           "true",  // Default to enabled like VS Code
 		"initialized":        "false",
 		"logRetentionDays":   "7",    // Default 7 days log retention
 		"logLevel":           "warn", // Production default: warn
