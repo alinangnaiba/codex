@@ -197,9 +197,15 @@ export const HelpDialog: React.FC<HelpDialogProps> = ({ isOpen, onClose }) => {
                 <pre className="text-xs text-gray-600 dark:text-gray-400">
 {`- [x] Task completed
 - [ ] Task pending
+
 H~2~O (subscript)
+
 E=mc^2^ (superscript)
+
 ==highlighted text==
+
+Here's a sentence with a footnote. [^1]
+
 [^1]: Footnote text`}
                 </pre>
               </div>

@@ -96,8 +96,8 @@ export const CodexCard: React.FC<CodexCardProps> = ({
             </div>
             <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
               <div
-                className="bg-accent h-1.5 rounded-full transition-all duration-300"
-                style={{ width: `${progress.progressPercent}%`, backgroundColor: 'var(--color-accent)' }}
+                className="h-1.5 rounded-full transition-all duration-300"
+                style={{ width: `${progress.progressPercent}%`, backgroundColor: 'var(--color-primary)' }}
               />
             </div>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">

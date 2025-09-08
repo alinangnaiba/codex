@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PlusIcon, PencilSimpleIcon, TrashIcon, CheckSquareIcon, SquareIcon, FileIcon, BookOpenIcon, CaretRightIcon, CaretDownIcon } from '@phosphor-icons/react';
+import { PencilSimpleIcon, TrashIcon, CheckSquareIcon, SquareIcon, FileIcon, BookOpenIcon, CaretRightIcon, CaretDownIcon, FilePlusIcon } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ConfirmModal } from '../components/ConfirmModal';
@@ -321,7 +321,7 @@ export const CodexView: React.FC = () => {
                 disabled={!newSectionTitle.trim() || isAddingSection}
                 className="btn-primary px-3"
               >
-                <PlusIcon size={16} weight="regular" />
+                <FilePlusIcon size={20} weight="thin" />
               </button>
             </div>
           </div>
