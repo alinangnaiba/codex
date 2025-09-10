@@ -1,6 +1,8 @@
 // Keyboard handling utilities for the section editor
 // Extracted from SectionEditor.tsx for better maintainability
 
+import { keymap } from '@codemirror/view';
+
 export interface KeyboardHandlerCallbacks {
   insertMarkdown: (prefix: string, suffix?: string) => void;
   handleSave: () => void;
@@ -17,7 +19,6 @@ export interface KeyStroke {
   altKey?: boolean;
 }
 
-// Tab handling functions
 export function handleTabIndentation(
   e: React.KeyboardEvent,
   setContent: (content: string) => void
@@ -47,9 +48,8 @@ function handleShiftTab(
   let lineEnd = 0;
   let currentPos = 0;
   
-  // Find which lines are selected
   for (let i = 0; i < lines.length; i++) {
-    const lineLength = lines[i].length + 1; // +1 for \n
+    const lineLength = lines[i].length + 1;
     if (currentPos <= start && start <= currentPos + lineLength) {
       lineStart = i;
     }
@@ -60,7 +60,6 @@ function handleShiftTab(
     currentPos += lineLength;
   }
   
-  // Remove indentation from selected lines
   let positionOffset = 0;
   
   for (let i = 0; i < lines.length; i++) {
@@ -78,7 +77,6 @@ function handleShiftTab(
   const newContent = lines.join('\n');
   setContent(newContent);
   
-  // Restore selection
   setTimeout(() => {
     textarea.focus();
     textarea.setSelectionRange(
@@ -96,33 +94,27 @@ function handleTab(
   setContent: (content: string) => void
 ): void {
   if (start !== end) {
-    // Multiple lines selected - indent all lines
     const beforeText = currentContent.substring(0, start);
     const selectedText = currentContent.substring(start, end);
     const afterText = currentContent.substring(end);
     
-    // Find start of first line and end of last line in selection
     const lineStart = beforeText.lastIndexOf('\n') + 1;
     const selectedLines = (beforeText.substring(lineStart) + selectedText).split('\n');
     
-    // Add indentation to each line
     const indentedLines = selectedLines.map(line => '    ' + line);
     const newSelectedText = indentedLines.join('\n');
     
     const newContent = beforeText.substring(0, lineStart) + newSelectedText + afterText;
     setContent(newContent);
     
-    // Restore selection
     setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(start + 4, end + (indentedLines.length * 4));
     }, 0);
   } else {
-    // Single cursor - insert tab
     const newContent = currentContent.substring(0, start) + '    ' + currentContent.substring(start);
     setContent(newContent);
     
-    // Move cursor
     setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(start + 4, start + 4);
@@ -130,7 +122,6 @@ function handleTab(
   }
 }
 
-// Keyboard shortcut definitions
 type ShortcutHandler = (callbacks: KeyboardHandlerCallbacks) => void;
 
 interface KeyboardShortcut {
@@ -322,7 +313,6 @@ const KEYBOARD_SHORTCUTS: Record<string, KeyboardShortcut> = {
   }
 };
 
-// Generate shortcut key from keyboard event
 function getShortcutKey(e: KeyboardEvent | React.KeyboardEvent): string {
   const parts: string[] = [];
   
@@ -336,18 +326,15 @@ function getShortcutKey(e: KeyboardEvent | React.KeyboardEvent): string {
   return parts.join('+');
 }
 
-// Main keyboard handler function
 export function handleKeyboardShortcut(
   e: React.KeyboardEvent,
   callbacks: KeyboardHandlerCallbacks
 ): boolean {
-  // Handle Tab separately since it's special
   if (e.key === 'Tab') {
     handleTabIndentation(e, callbacks.setContent);
     return true;
   }
 
-  // Handle other keyboard shortcuts
   const shortcutKey = getShortcutKey(e);
   const shortcut = KEYBOARD_SHORTCUTS[shortcutKey];
   
@@ -360,10 +347,69 @@ export function handleKeyboardShortcut(
   return false;
 }
 
-// Export shortcut information for help dialog
 export function getKeyboardShortcuts() {
   return Object.entries(KEYBOARD_SHORTCUTS).map(([key, shortcut]) => ({
     key,
     description: shortcut.description
   }));
+}
+
+function convertToCodeMirrorKey(shortcutKey: string): { key: string; mac?: string } {
+  const parts = shortcutKey.split('+');
+  const modifiers: string[] = [];
+  let key = '';
+  
+  for (const part of parts) {
+    switch (part) {
+      case 'ctrl':
+        modifiers.push('Ctrl');
+        break;
+      case 'cmd':
+        modifiers.push('Cmd');
+        break;
+      case 'shift':
+        modifiers.push('Shift');
+        break;
+      case 'alt':
+        modifiers.push('Alt');
+        break;
+      default:
+        key = part === '`' ? '`' : part; // Handle backtick specially
+        break;
+    }
+  }
+  
+  const codeMirrorKey = [...modifiers, key].join('-');
+  
+  // Handle platform-specific keys
+  if (shortcutKey.includes('ctrl+') && shortcutKey.includes('cmd+')) {
+    return { key: codeMirrorKey };
+  } else if (shortcutKey.includes('ctrl+')) {
+    const macKey = codeMirrorKey.replace('Ctrl', 'Cmd');
+    return { key: codeMirrorKey, mac: macKey };
+  } else if (shortcutKey.includes('cmd+')) {
+    const winKey = codeMirrorKey.replace('Cmd', 'Ctrl');
+    return { key: winKey, mac: codeMirrorKey };
+  }
+  
+  return { key: codeMirrorKey };
+}
+
+export function createCodeMirrorKeymap(callbacks: KeyboardHandlerCallbacks) {
+  const keymapBindings = [];
+  
+  for (const [shortcutKey, shortcut] of Object.entries(KEYBOARD_SHORTCUTS)) {
+    const { key, mac } = convertToCodeMirrorKey(shortcutKey);
+    
+    keymapBindings.push({
+      key,
+      ...(mac && { mac }),
+      run: () => {
+        shortcut.handler(callbacks);
+        return true;
+      }
+    });
+  }
+  
+  return keymap.of(keymapBindings);
 }
