@@ -8,15 +8,15 @@
 @layer base {
     :root {
         /* Soft Light Theme */
-        --color-bg: #F7F7F7;
-        --color-bg-secondary: #F0F0F0;
+        --color-bg: #fff;
+        --color-bg-secondary: #D1D5DB;
         --color-text: #1F2937;
         --color-text-muted: #4B5563;
         --color-text-subtle: #9CA3AF;
-        --color-border: rgba(0, 0, 0, 0.05);
-        --color-border-subtle: rgba(0, 0, 0, 0.025);
-        --color-card: #F9F9F9;
-        --color-card-hover: #F5F5F5;
+        --color-border: rgba(0, 0, 0, 0.08);
+        --color-border-subtle: rgba(0, 0, 0, 0.04);
+        --color-card: #FFF;
+        --color-card-hover: #F2F3F5;
         --color-hover: rgba(0, 0, 0, 0.03);
         --color-accent: #4B5563;
         --color-accent-hover: #374151;
@@ -25,6 +25,9 @@
         --color-warning: #FFC107;
         --color-danger: #DC3545;
         --color-info: #0366D6;
+        --color-primary: #60A5FA;
+        --color-primary-hover: #3B82F6;
+        --color-primary-subtle: rgba(96, 165, 250, 0.1);
         
         /* Minimal shadows */
         --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -53,6 +56,9 @@
         --color-warning: #CE9178;
         --color-danger: #F48771;
         --color-info: #4A90E2;
+        --color-primary: #60A5FA;
+        --color-primary-hover: #93C5FD;
+        --color-primary-subtle: rgba(96, 165, 250, 0.1);
         
         /* Minimal shadows for dark mode */
         --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
@@ -431,51 +437,14 @@
         background: rgba(255, 255, 255, 0.3);
     }
 
-    /* Editor with line numbers styles */
-    .line-numbers {
-        user-select: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-    }
-
-    .line-numbers::-webkit-scrollbar {
-        display: none;
-    }
-
-    .line-numbers {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
     /* Editor textarea styling */
     .editor-textarea {
         tab-size: 4;
         -moz-tab-size: 4;
-        /* Word wrap is controlled dynamically via inline styles based on settings */
-    }
-
-    /* Synchronize line height and padding */
-    .editor-textarea,
-    .line-numbers {
         font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
         font-size: 0.875rem;
         line-height: 1.5rem;
-    }
-
-    /* VS Code-like line number hover effect */
-    .line-numbers > div {
-        transition: color 0.15s ease;
-    }
-
-    .line-numbers:hover > div {
-        color: var(--color-text-muted);
-    }
-
-    /* Current line highlight (optional enhancement) */
-    .line-numbers > div.current-line {
-        color: var(--color-text);
-        font-weight: 600;
+        /* Word wrap is controlled dynamically via inline styles based on settings */
     }
     
 }

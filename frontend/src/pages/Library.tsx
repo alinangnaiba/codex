@@ -148,7 +148,7 @@ export const CodexLibrary: React.FC = () => {
             onClick={() => setIsCreateDialogOpen(true)}
             className="btn-primary flex items-center gap-1.5"
           >
-            <PlusIcon size={18} weight="bold" />
+            <PlusIcon size={18} weight="light" />
             <span>New Codex</span>
           </button>
         </div>
