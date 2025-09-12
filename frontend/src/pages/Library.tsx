@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PlusIcon, MagnifyingGlassIcon, BooksIcon, PushPinIcon } from '@phosphor-icons/react';
+import {
+  PlusIcon,
+  MagnifyingGlassIcon,
+  BooksIcon,
+  PushPinIcon,
+} from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { CodexCard } from '../components/CodexCard';
 import { CreateCodexDialog } from '../components/CreateCodexDialog';
@@ -11,7 +16,9 @@ import { codexAPI, Codex, CodexProgress } from '../utils/api';
 export const CodexLibrary: React.FC = () => {
   const navigate = useNavigate();
   const [codexes, setCodexes] = useState<Codex[]>([]);
-  const [progressMap, setProgressMap] = useState<Map<number, CodexProgress>>(new Map());
+  const [progressMap, setProgressMap] = useState<Map<number, CodexProgress>>(
+    new Map()
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -37,7 +44,10 @@ export const CodexLibrary: React.FC = () => {
           const progress = await codexAPI.getProgress(codex.id);
           progressData.set(codex.id, progress);
         } catch (error) {
-          console.error(`Failed to load progress for codex ${codex.id}:`, error);
+          console.error(
+            `Failed to load progress for codex ${codex.id}:`,
+            error
+          );
         }
       }
       setProgressMap(progressData);
@@ -92,7 +102,7 @@ export const CodexLibrary: React.FC = () => {
 
   const handleDeleteCodex = async () => {
     if (!deletingCodex) return;
-    
+
     try {
       await codexAPI.delete(deletingCodex.id);
       await loadCodexes();
@@ -138,10 +148,23 @@ export const CodexLibrary: React.FC = () => {
   return (
     <div className="h-screen overflow-hidden flex flex-col">
       {/* Header */}
-      <header className="border-b px-6 py-4" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
+      <header
+        className="border-b px-6 py-4"
+        style={{
+          backgroundColor: 'var(--color-bg)',
+          borderColor: 'var(--color-border)',
+        }}
+      >
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl font-semibold flex items-center gap-2" style={{ color: 'var(--color-text)' }}>
-            <BooksIcon size={24} weight="duotone" className="text-gray-600 dark:text-gray-400" />
+          <h1
+            className="text-xl font-semibold flex items-center gap-2"
+            style={{ color: 'var(--color-text)' }}
+          >
+            <BooksIcon
+              size={24}
+              weight="duotone"
+              className="text-gray-600 dark:text-gray-400"
+            />
             <span>My Library</span>
           </h1>
           <button
@@ -152,15 +175,18 @@ export const CodexLibrary: React.FC = () => {
             <span>New Codex</span>
           </button>
         </div>
-        
+
         {/* Search bar */}
         <div className="relative max-w-md">
-          <MagnifyingGlassIcon size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <MagnifyingGlassIcon
+            size={18}
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+          />
           <input
             type="text"
             placeholder="Search codexes..."
             value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={e => handleSearch(e.target.value)}
             className="input pl-10 w-full"
           />
         </div>
@@ -170,9 +196,17 @@ export const CodexLibrary: React.FC = () => {
       <div className="flex-1 overflow-y-auto scrollbar-thin p-6">
         {codexes.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full">
-            <BooksIcon size={64} weight="thin" className="text-gray-300 dark:text-gray-600 mb-4" />
-            <p className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">No codexes yet</p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">Create your first codex to get started</p>
+            <BooksIcon
+              size={64}
+              weight="thin"
+              className="text-gray-300 dark:text-gray-600 mb-4"
+            />
+            <p className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">
+              No codexes yet
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-500">
+              Create your first codex to get started
+            </p>
           </div>
         ) : (
           <>
@@ -202,9 +236,7 @@ export const CodexLibrary: React.FC = () => {
             {/* All codexes */}
             {unpinnedCodexes.length > 0 && (
               <div>
-                <h2 className="text-lg font-semibold mb-4">
-                  All
-                </h2>
+                <h2 className="text-lg font-semibold mb-4">All</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {unpinnedCodexes.map(codex => (
                     <CodexCard
@@ -238,7 +270,7 @@ export const CodexLibrary: React.FC = () => {
           mode={editingCodex ? 'edit' : 'create'}
         />
       )}
-      
+
       {/* Delete Confirmation Modal */}
       {deletingCodex && (
         <ConfirmModal

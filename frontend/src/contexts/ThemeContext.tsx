@@ -69,9 +69,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const setTheme = async (newTheme: Theme) => {
     setThemeState(newTheme);
     applyTheme(newTheme);
-    
+
     // Save to settings (fire and forget to prevent memory leaks)
-    settingsAPI.set('theme', newTheme).catch((error) => {
+    settingsAPI.set('theme', newTheme).catch(error => {
       console.error('Failed to save theme:', error);
     });
   };

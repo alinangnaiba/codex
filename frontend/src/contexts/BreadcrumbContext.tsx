@@ -8,13 +8,17 @@ interface BreadcrumbContextType {
   resetBreadcrumbs: () => void;
 }
 
-const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(undefined);
+const BreadcrumbContext = createContext<BreadcrumbContextType | undefined>(
+  undefined
+);
 
 interface BreadcrumbProviderProps {
   children: ReactNode;
 }
 
-export const BreadcrumbProvider: React.FC<BreadcrumbProviderProps> = ({ children }) => {
+export const BreadcrumbProvider: React.FC<BreadcrumbProviderProps> = ({
+  children,
+}) => {
   const [codexTitle, setCodexTitle] = useState('');
   const [sectionTitle, setSectionTitle] = useState('');
 
@@ -24,13 +28,13 @@ export const BreadcrumbProvider: React.FC<BreadcrumbProviderProps> = ({ children
   };
 
   return (
-    <BreadcrumbContext.Provider 
+    <BreadcrumbContext.Provider
       value={{
         codexTitle,
         sectionTitle,
         setCodexTitle,
         setSectionTitle,
-        resetBreadcrumbs
+        resetBreadcrumbs,
       }}
     >
       {children}

@@ -89,59 +89,59 @@ hljs.registerLanguage('dockerfile', dockerfile);
 
 // Configure markdown-it with all features enabled
 export const md: MarkdownIt = new MarkdownIt({
-  html: true,           // Enable HTML tags in source
-  xhtmlOut: true,      // Use '/' to close single tags (<br />)
-  breaks: true,        // Convert '\n' in paragraphs into <br>
-  langPrefix: 'hljs language-',  // CSS language prefix for fenced blocks
-  linkify: true,       // Autoconvert URL-like text to links
-  typographer: true,   // Enable smartquotes and other typographic replacements
-  quotes: '""\'\'',     // Quote characters for typographer (primary and secondary)
+  html: true, // Enable HTML tags in source
+  xhtmlOut: true, // Use '/' to close single tags (<br />)
+  breaks: true, // Convert '\n' in paragraphs into <br>
+  langPrefix: 'hljs language-', // CSS language prefix for fenced blocks
+  linkify: true, // Autoconvert URL-like text to links
+  typographer: true, // Enable smartquotes and other typographic replacements
+  quotes: '""\'\'', // Quote characters for typographer (primary and secondary)
   highlight: function (str, lang) {
     // Create a friendly display name for the language
     const getLanguageDisplayName = (langCode: string): string => {
       const languageNames: { [key: string]: string } = {
-        'js': 'JavaScript',
-        'javascript': 'JavaScript',
-        'ts': 'TypeScript',
-        'typescript': 'TypeScript',
-        'py': 'Python',
-        'python': 'Python',
-        'java': 'Java',
-        'cs': 'C#',
-        'csharp': 'C#',
-        'cpp': 'C++',
+        js: 'JavaScript',
+        javascript: 'JavaScript',
+        ts: 'TypeScript',
+        typescript: 'TypeScript',
+        py: 'Python',
+        python: 'Python',
+        java: 'Java',
+        cs: 'C#',
+        csharp: 'C#',
+        cpp: 'C++',
         'c++': 'C++',
-        'c': 'C',
-        'go': 'Go',
-        'golang': 'Go',
-        'rs': 'Rust',
-        'rust': 'Rust',
-        'php': 'PHP',
-        'rb': 'Ruby',
-        'ruby': 'Ruby',
-        'swift': 'Swift',
-        'kt': 'Kotlin',
-        'kotlin': 'Kotlin',
-        'scala': 'Scala',
-        'sh': 'Shell',
-        'shell': 'Shell',
-        'bash': 'Bash',
-        'ps1': 'PowerShell',
-        'powershell': 'PowerShell',
-        'sql': 'SQL',
-        'json': 'JSON',
-        'xml': 'XML',
-        'html': 'HTML',
-        'yml': 'YAML',
-        'yaml': 'YAML',
-        'md': 'Markdown',
-        'markdown': 'Markdown',
-        'css': 'CSS',
-        'scss': 'SCSS',
-        'sass': 'Sass',
-        'make': 'Makefile',
-        'makefile': 'Makefile',
-        'dockerfile': 'Dockerfile'
+        c: 'C',
+        go: 'Go',
+        golang: 'Go',
+        rs: 'Rust',
+        rust: 'Rust',
+        php: 'PHP',
+        rb: 'Ruby',
+        ruby: 'Ruby',
+        swift: 'Swift',
+        kt: 'Kotlin',
+        kotlin: 'Kotlin',
+        scala: 'Scala',
+        sh: 'Shell',
+        shell: 'Shell',
+        bash: 'Bash',
+        ps1: 'PowerShell',
+        powershell: 'PowerShell',
+        sql: 'SQL',
+        json: 'JSON',
+        xml: 'XML',
+        html: 'HTML',
+        yml: 'YAML',
+        yaml: 'YAML',
+        md: 'Markdown',
+        markdown: 'Markdown',
+        css: 'CSS',
+        scss: 'SCSS',
+        sass: 'Sass',
+        make: 'Makefile',
+        makefile: 'Makefile',
+        dockerfile: 'Dockerfile',
       };
       return languageNames[langCode.toLowerCase()] || langCode.toUpperCase();
     };
@@ -151,14 +151,14 @@ export const md: MarkdownIt = new MarkdownIt({
         const result = hljs.highlight(str, { language: lang });
         const displayName = getLanguageDisplayName(lang);
         return `<pre class="hljs bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto relative" data-language="${displayName}"><code class="hljs language-${lang}">${result.value}</code></pre>`;
-      } catch (__) {
+      } catch {
         // Fall back to escaped content if highlighting fails
       }
     }
-    
+
     const displayName = lang ? getLanguageDisplayName(lang) : 'Code';
     return `<pre class="hljs bg-gray-100 dark:bg-gray-900 rounded-lg overflow-x-auto relative" data-language="${displayName}"><code class="hljs">${md.utils.escapeHtml(str)}</code></pre>`;
-  }
+  },
 })
   .use(markdownItFootnote)
   .use(markdownItSub)
@@ -179,13 +179,19 @@ md.enable([
   'heading',
   'lheading',
   'html_block',
-  'paragraph'
+  'paragraph',
 ]);
 
-md.renderer.rules.heading_open = function(tokens: any, idx: number, options: any, env: any, renderer: any): string {
+md.renderer.rules.heading_open = function (
+  tokens: MarkdownIt.Token[],
+  idx: number,
+  _options: MarkdownIt.Options,
+  _env: unknown,
+  _renderer: MarkdownIt.Renderer
+): string {
   const token = tokens[idx];
   const level = token.markup.length;
-  
+
   if (level === 2 || level === 3) {
     const textToken = tokens[idx + 1];
     if (textToken && textToken.type === 'inline') {
@@ -194,11 +200,17 @@ md.renderer.rules.heading_open = function(tokens: any, idx: number, options: any
       return `<h${level} id="${id}">`;
     }
   }
-  
+
   return `<h${level}>`;
 };
 
-md.renderer.rules.code_inline = function(tokens: any, idx: number, options: any, env: any, renderer: any): string {
+md.renderer.rules.code_inline = function (
+  tokens: MarkdownIt.Token[],
+  idx: number,
+  _options: MarkdownIt.Options,
+  _env: unknown,
+  _renderer: MarkdownIt.Renderer
+): string {
   const token = tokens[idx];
   return `<code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm font-mono">${md.utils.escapeHtml(token.content)}</code>`;
 };
@@ -213,7 +225,9 @@ export interface NestedHeading extends HeadingInfo {
   children: HeadingInfo[];
 }
 
-export const createNestedHeadings = (headings: HeadingInfo[]): NestedHeading[] => {
+export const createNestedHeadings = (
+  headings: HeadingInfo[]
+): NestedHeading[] => {
   const nested: NestedHeading[] = [];
   let currentH2: NestedHeading | null = null;
 
@@ -222,7 +236,7 @@ export const createNestedHeadings = (headings: HeadingInfo[]): NestedHeading[] =
       // Create new H2 heading with children array
       currentH2 = {
         ...heading,
-        children: []
+        children: [],
       };
       nested.push(currentH2);
     } else if (heading.level === 3 && currentH2) {
@@ -232,7 +246,7 @@ export const createNestedHeadings = (headings: HeadingInfo[]): NestedHeading[] =
       // H3 without parent H2 - create a standalone entry
       nested.push({
         ...heading,
-        children: []
+        children: [],
       });
     }
   }
@@ -243,10 +257,10 @@ export const createNestedHeadings = (headings: HeadingInfo[]): NestedHeading[] =
 export const extractHeadings = (markdownContent: string): HeadingInfo[] => {
   const headings: HeadingInfo[] = [];
   const lines = markdownContent.split('\n');
-  
+
   for (const line of lines) {
     const trimmedLine = line.trim();
-    
+
     if (trimmedLine.startsWith('## ') && !trimmedLine.startsWith('### ')) {
       const text = trimmedLine.substring(3).trim();
       if (text) {
@@ -254,26 +268,27 @@ export const extractHeadings = (markdownContent: string): HeadingInfo[] => {
         headings.push({
           text,
           id,
-          level: 2
+          level: 2,
         });
       }
-    }
-    else if (trimmedLine.startsWith('### ') && !trimmedLine.startsWith('#### ')) {
+    } else if (
+      trimmedLine.startsWith('### ') &&
+      !trimmedLine.startsWith('#### ')
+    ) {
       const text = trimmedLine.substring(4).trim();
       if (text) {
         const id = generateHeadingId(text);
         headings.push({
           text,
           id,
-          level: 3
+          level: 3,
         });
       }
     }
   }
-  
+
   return headings;
 };
-
 
 export const generateHeadingId = (text: string): string => {
   return text

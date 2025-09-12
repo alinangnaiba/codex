@@ -1,6 +1,11 @@
 import React from 'react';
 import { useLocation, useParams, Link } from 'react-router-dom';
-import { CaretRightIcon, BookOpenIcon, PencilSimpleIcon, BooksIcon } from '@phosphor-icons/react';
+import {
+  CaretRightIcon,
+  BookOpenIcon,
+  PencilSimpleIcon,
+  BooksIcon,
+} from '@phosphor-icons/react';
 
 interface BreadcrumbItem {
   label: string;
@@ -13,7 +18,10 @@ interface BreadcrumbProps {
   sectionTitle?: string;
 }
 
-export const Breadcrumb: React.FC<BreadcrumbProps> = ({ codexTitle, sectionTitle }) => {
+export const Breadcrumb: React.FC<BreadcrumbProps> = ({
+  codexTitle,
+  sectionTitle,
+}) => {
   const location = useLocation();
   const { id, codexId, sectionId } = useParams();
   const currentCodexId = codexId || id;
@@ -23,27 +31,27 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ codexTitle, sectionTitle
       {
         label: 'My Library',
         path: '/',
-        icon: <BooksIcon size={16} weight="duotone" />
-      }
+        icon: <BooksIcon size={16} weight="duotone" />,
+      },
     ];
 
     if (location.pathname === '/settings') {
       items.push({
         label: 'Settings',
-        path: '/settings'
+        path: '/settings',
       });
     } else if (currentCodexId) {
       items.push({
         label: codexTitle || 'Codex',
         path: `/codex/${currentCodexId}`,
-        icon: <BookOpenIcon size={16} weight="duotone" />
+        icon: <BookOpenIcon size={16} weight="duotone" />,
       });
 
       if (sectionId) {
         items.push({
           label: sectionTitle || 'Edit Section',
           path: `/codex/${currentCodexId}/section/${sectionId}/edit`,
-          icon: <PencilSimpleIcon size={16} weight="duotone" />
+          icon: <PencilSimpleIcon size={16} weight="duotone" />,
         });
       }
     }
@@ -61,11 +69,14 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ codexTitle, sectionTitle
     <nav className="flex items-center space-x-1 text-sm">
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
-        
+
         return (
           <React.Fragment key={item.path}>
             {index > 0 && (
-              <CaretRightIcon size={16} className="text-gray-400 dark:text-gray-500 mx-1" />
+              <CaretRightIcon
+                size={16}
+                className="text-gray-400 dark:text-gray-500 mx-1"
+              />
             )}
             {isLast ? (
               <span className="flex items-center gap-1.5 text-gray-900 dark:text-gray-100 font-medium">
