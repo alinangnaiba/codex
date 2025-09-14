@@ -22,6 +22,7 @@ import { useBreadcrumb } from '../contexts/BreadcrumbContext';
 import { useTheme } from '../contexts/ThemeContext';
 import md from '../utils/markdown';
 import toast from 'react-hot-toast';
+import { useOpenExternalLinkHandlers } from '../utils/linkHandlers';
 import {
   KeyboardHandlerCallbacks,
   createCodeMirrorKeymap,
@@ -203,6 +204,8 @@ export const SectionEditor: React.FC = () => {
       toast.error('Failed to import markdown file. Please try again.');
     }
   };
+
+  const { handleClick: handlePreviewClick, handleKeyDown: handlePreviewKeyDown } = useOpenExternalLinkHandlers();
 
   const insertMarkdown = useCallback(
     (prefix: string, suffix: string = '') => {
@@ -464,7 +467,13 @@ export const SectionEditor: React.FC = () => {
         {/* Preview */}
         {showPreview && (
           <div className="w-1/2 border-l border-gray-200 dark:border-gray-700 overflow-y-auto">
-            <div className="p-6">
+            <div 
+              className="p-6" 
+              onClick={handlePreviewClick}
+              onKeyDown={handlePreviewKeyDown}
+              role="region"
+              aria-label="Markdown preview"
+            >
               {content ? (
                 <div
                   className="prose prose-lg dark:prose-invert max-w-none"
