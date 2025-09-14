@@ -114,17 +114,17 @@ codex/
 └── wails.json            # Wails configuration
 ```
 
-## 🤝 Contributing
+## 🐛 Bug Reports
 
-We welcome contributions! Here's how you can help:
+Found an issue? Help us improve CodeX by reporting bugs:
 
-1. **Fork the repository** and create a feature branch
-2. **Make your changes** following the existing code style
-3. **Run the linter and formatter** to ensure code quality
-4. **Test your changes** thoroughly
-5. **Submit a pull request** with a clear description
+1. **Search existing issues** to avoid duplicates
+2. **Provide clear details** about the problem and steps to reproduce
+3. **Include your environment** (OS, Wails version, Node.js version)
+4. **Add screenshots or logs** if helpful
+5. **Use descriptive titles** for easy identification
 
-For bug reports and feature requests, please [open an issue](../../issues).
+Please [open an issue](../../issues) with the bug report template.
 
 ## 📄 License
 
