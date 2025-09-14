@@ -51,8 +51,6 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
   };
 
   const handleComplete = async () => {
-    // contentPath can be empty string to use default location
-
     setIsLoading(true);
     try {
       await settingsAPI.save({
@@ -73,14 +71,18 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8 max-w-md w-full mx-4">
-        <h1 className="text-3xl font-bold mb-2 text-center">Welcome to CodeX</h1>
+        <h1 className="text-3xl font-bold mb-2 text-center">
+          Welcome to CodeX
+        </h1>
         <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
-          Let's get you set up in just a moment
+          Let&apos;s get you set up in just a moment
         </p>
 
         {/* Theme Selection */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-3">Choose your theme</label>
+        <fieldset className="mb-6">
+          <legend className="block text-sm font-medium mb-3">
+            Choose your theme
+          </legend>
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => setTheme('light')}
@@ -105,13 +107,16 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
               <span className="text-sm">Dark</span>
             </button>
           </div>
-        </div>
+        </fieldset>
 
         {/* Auto-save Setting */}
         <div className="mb-6">
           <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">
+              <label
+                htmlFor="setup-auto-save-toggle"
+                className="block text-sm font-medium mb-1"
+              >
                 Enable Auto-save
               </label>
               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -119,6 +124,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
               </p>
             </div>
             <button
+              id="setup-auto-save-toggle"
               onClick={() => setAutoSave(!autoSave)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 autoSave ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
@@ -134,16 +140,19 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
         </div>
 
         {/* Content Directory Selection */}
-        <div className="mb-8">
-          <label className="block text-sm font-medium mb-3">
+        <fieldset className="mb-8">
+          <legend className="block text-sm font-medium mb-3">
             Where should we store your content files?
-          </label>
-          
+          </legend>
+
           <div className="space-y-4">
             {/* Default Location Toggle */}
             <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
               <div className="flex-1">
-                <label className="block text-sm font-medium mb-1">
+                <label
+                  htmlFor="setup-default-location-toggle"
+                  className="block text-sm font-medium mb-1"
+                >
                   Use Default Location
                 </label>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -151,9 +160,12 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
                 </p>
               </div>
               <button
+                id="setup-default-location-toggle"
                 onClick={() => handleToggleDefault(!useDefaultLocation)}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  useDefaultLocation ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'
+                  useDefaultLocation
+                    ? 'bg-blue-500'
+                    : 'bg-gray-300 dark:bg-gray-600'
                 }`}
               >
                 <span
@@ -163,18 +175,22 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
                 />
               </button>
             </div>
-            
+
             {/* Custom Directory Input */}
             {!useDefaultLocation && (
               <div>
-                <label className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="setup-custom-directory-input"
+                  className="block text-sm font-medium mb-2"
+                >
                   Custom Directory
                 </label>
                 <div className="flex gap-2">
                   <input
+                    id="setup-custom-directory-input"
                     type="text"
                     value={contentPath}
-                    onChange={(e) => setContentPath(e.target.value)}
+                    onChange={e => setContentPath(e.target.value)}
                     className="input flex-1"
                     placeholder="Enter directory path or browse..."
                   />
@@ -192,7 +208,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
               </div>
             )}
           </div>
-        </div>
+        </fieldset>
 
         {error && (
           <p className="text-red-500 text-sm mb-4 text-center">{error}</p>

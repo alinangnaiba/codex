@@ -56,43 +56,46 @@ function App() {
     <ThemeProvider>
       <BreadcrumbProvider>
         <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<AppLayout />}>
-            <Route index element={<CodexLibrary />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="codex/:id" element={<CodexView />} />
-            <Route path="codex/:codexId/section/:sectionId/edit" element={<SectionEditor />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
+          <Routes>
+            <Route path="/" element={<AppLayout />}>
+              <Route index element={<CodexLibrary />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="codex/:id" element={<CodexView />} />
+              <Route
+                path="codex/:codexId/section/:sectionId/edit"
+                element={<SectionEditor />}
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
         </BrowserRouter>
-        <Toaster 
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: 'var(--color-card)',
-            color: 'var(--color-text)',
-            border: '1px solid var(--color-border)',
-            boxShadow: 'var(--shadow-lg)',
-          },
-          success: {
-            iconTheme: {
-              primary: 'var(--color-success)',
-              secondary: 'var(--color-card)',
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: 'var(--color-card)',
+              color: 'var(--color-text)',
+              border: '1px solid var(--color-border)',
+              boxShadow: 'var(--shadow-lg)',
             },
-          },
-          error: {
-            iconTheme: {
-              primary: 'var(--color-danger)',
-              secondary: 'var(--color-card)',
+            success: {
+              iconTheme: {
+                primary: 'var(--color-success)',
+                secondary: 'var(--color-card)',
+              },
             },
-          },
-        }}
+            error: {
+              iconTheme: {
+                primary: 'var(--color-danger)',
+                secondary: 'var(--color-card)',
+              },
+            },
+          }}
         />
       </BreadcrumbProvider>
     </ThemeProvider>
   );
 }
 
-export default App
+export default App;

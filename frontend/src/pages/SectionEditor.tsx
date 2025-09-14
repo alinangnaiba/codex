@@ -4,8 +4,8 @@ import React, {
   useCallback,
   useRef,
   useMemo,
-} from "react";
-import { useParams, useNavigate } from "react-router-dom";
+} from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeftIcon,
   FloppyDiskIcon,
@@ -13,24 +13,24 @@ import {
   EyeIcon,
   CodeIcon,
   UploadSimpleIcon,
-} from "@phosphor-icons/react";
-import { LoadingSpinner } from "../components/LoadingSpinner";
-import { HelpDialog } from "../components/HelpDialog";
-import { EditorToolbar } from "../components/EditorToolbar";
-import { sectionAPI, codexAPI, fileAPI, settingsAPI } from "../utils/api";
-import { useBreadcrumb } from "../contexts/BreadcrumbContext";
-import { useTheme } from "../contexts/ThemeContext";
-import md from "../utils/markdown";
-import toast from "react-hot-toast";
+} from '@phosphor-icons/react';
+import { LoadingSpinner } from '../components/LoadingSpinner';
+import { HelpDialog } from '../components/HelpDialog';
+import { EditorToolbar } from '../components/EditorToolbar';
+import { sectionAPI, codexAPI, fileAPI, settingsAPI } from '../utils/api';
+import { useBreadcrumb } from '../contexts/BreadcrumbContext';
+import { useTheme } from '../contexts/ThemeContext';
+import md from '../utils/markdown';
+import toast from 'react-hot-toast';
 import {
   KeyboardHandlerCallbacks,
   createCodeMirrorKeymap,
-} from "../utils/keyboardHandlers";
-import CodeMirror from "@uiw/react-codemirror";
-import { markdown } from "@codemirror/lang-markdown";
-import { oneDark } from "@codemirror/theme-one-dark";
-import { search, highlightSelectionMatches } from "@codemirror/search";
-import { EditorView, ViewUpdate } from "@codemirror/view";
+} from '../utils/keyboardHandlers';
+import CodeMirror from '@uiw/react-codemirror';
+import { markdown } from '@codemirror/lang-markdown';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { search, highlightSelectionMatches } from '@codemirror/search';
+import { EditorView, ViewUpdate } from '@codemirror/view';
 
 export const SectionEditor: React.FC = () => {
   const { codexId, sectionId } = useParams<{
@@ -41,10 +41,10 @@ export const SectionEditor: React.FC = () => {
   const { setCodexTitle, setSectionTitle: setBreadcrumbSectionTitle } =
     useBreadcrumb();
   const { theme } = useTheme();
-  const [sectionTitle, setSectionTitle] = useState("");
-  const [originalSectionTitle, setOriginalSectionTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [originalContent, setOriginalContent] = useState("");
+  const [sectionTitle, setSectionTitle] = useState('');
+  const [originalSectionTitle, setOriginalSectionTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [originalContent, setOriginalContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
@@ -88,26 +88,59 @@ export const SectionEditor: React.FC = () => {
     setHasChanges(contentChanged || titleChanged);
   }, [content, originalContent, sectionTitle, originalSectionTitle]);
 
+  const loadSettings = useCallback(async () => {
+    try {
+      const autoSave = await settingsAPI.get('autoSave');
+      setAutoSaveEnabled(autoSave === 'true');
+
+      const wordWrap = await settingsAPI.get('wordWrap');
+      setWordWrapEnabled(wordWrap !== 'false');
+    } catch (error) {
+      console.error('Failed to load settings:', error);
+      setAutoSaveEnabled(false);
+      setWordWrapEnabled(true);
+    }
+  }, []);
+
+  const loadSection = useCallback(
+    async (id: number) => {
+      try {
+        setIsLoading(true);
+        const sections = await sectionAPI.getByCodex(parseInt(codexId!));
+        const section = sections.find(s => s.id === id);
+
+        if (!section) {
+          throw new Error('Section not found');
+        }
+
+        setSectionTitle(section.title);
+        setOriginalSectionTitle(section.title);
+
+        setBreadcrumbSectionTitle(section.title);
+
+        const codex = await codexAPI.getWithSections(parseInt(codexId!));
+        setCodexTitle(codex.title);
+
+        const sectionContent = await sectionAPI.getContent(id);
+        setContent(sectionContent || '');
+        setOriginalContent(sectionContent || '');
+      } catch (error) {
+        console.error('Failed to load section:', error);
+        toast.error('Failed to load section. Please try again.');
+        navigate(`/codex/${codexId}`);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [codexId, navigate, setCodexTitle, setBreadcrumbSectionTitle]
+  );
+
   useEffect(() => {
     if (sectionId) {
       loadSection(parseInt(sectionId));
     }
     loadSettings();
-  }, [sectionId]);
-
-  const loadSettings = async () => {
-    try {
-      const autoSave = await settingsAPI.get("autoSave");
-      setAutoSaveEnabled(autoSave === "true");
-
-      const wordWrap = await settingsAPI.get("wordWrap");
-      setWordWrapEnabled(wordWrap !== "false");
-    } catch (error) {
-      console.error("Failed to load settings:", error);
-      setAutoSaveEnabled(false);
-      setWordWrapEnabled(true);
-    }
-  };
+  }, [sectionId, loadSection, loadSettings]);
 
   const handleSave = useCallback(async () => {
     if (!sectionId || !sectionTitle.trim()) return;
@@ -122,10 +155,10 @@ export const SectionEditor: React.FC = () => {
       setOriginalContent(content);
       setOriginalSectionTitle(sectionTitle.trim());
       setLastSaved(new Date());
-      toast.success("Section saved successfully!");
+      toast.success('Section saved successfully!');
     } catch (error) {
-      console.error("Failed to save section:", error);
-      toast.error("Failed to save section. Please try again.");
+      console.error('Failed to save section:', error);
+      toast.error('Failed to save section. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -145,10 +178,10 @@ export const SectionEditor: React.FC = () => {
       const isCurrentlySaving = latestIsSavingRef.current;
 
       if ((hasContentChanges || hasTitleChanges) && !isCurrentlySaving) {
-        console.log(
-          "Auto-save triggered - Content changed:",
+        console.warn(
+          'Auto-save triggered - Content changed:',
           hasContentChanges,
-          "Title changed:",
+          'Title changed:',
           hasTitleChanges
         );
         handleSave();
@@ -158,36 +191,6 @@ export const SectionEditor: React.FC = () => {
     return () => clearInterval(autoSaveInterval);
   }, [autoSaveEnabled, handleSave]);
 
-  const loadSection = async (id: number) => {
-    try {
-      setIsLoading(true);
-      const sections = await sectionAPI.getByCodex(parseInt(codexId!));
-      const section = sections.find((s) => s.id === id);
-
-      if (!section) {
-        throw new Error("Section not found");
-      }
-
-      setSectionTitle(section.title);
-      setOriginalSectionTitle(section.title);
-
-      setBreadcrumbSectionTitle(section.title);
-
-      const codex = await codexAPI.getWithSections(parseInt(codexId!));
-      setCodexTitle(codex.title);
-
-      const sectionContent = await sectionAPI.getContent(id);
-      setContent(sectionContent || "");
-      setOriginalContent(sectionContent || "");
-    } catch (error) {
-      console.error("Failed to load section:", error);
-      toast.error("Failed to load section. Please try again.");
-      navigate(`/codex/${codexId}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleImportFile = async () => {
     try {
       const filePath = await fileAPI.selectMarkdownFile();
@@ -196,15 +199,15 @@ export const SectionEditor: React.FC = () => {
         setContent(importedContent);
       }
     } catch (error) {
-      console.error("Failed to import file:", error);
-      toast.error("Failed to import markdown file. Please try again.");
+      console.error('Failed to import file:', error);
+      toast.error('Failed to import markdown file. Please try again.');
     }
   };
 
   const insertMarkdown = useCallback(
-    (prefix: string, suffix: string = "") => {
+    (prefix: string, suffix: string = '') => {
       if (!editorView) {
-        setContent((prev) => prev + prefix + suffix);
+        setContent(prev => prev + prefix + suffix);
         return;
       }
 
@@ -270,38 +273,38 @@ export const SectionEditor: React.FC = () => {
       cursorPositionExtension,
       EditorView.theme(
         {
-          "&": {
-            fontSize: "14px",
+          '&': {
+            fontSize: '14px',
             fontFamily:
               'ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-            height: "100%",
+            height: '100%',
           },
-          ".cm-focused": {
-            outline: "none",
+          '.cm-focused': {
+            outline: 'none',
           },
-          ".cm-editor": {
-            height: "100%",
-            overflow: "hidden",
+          '.cm-editor': {
+            height: '100%',
+            overflow: 'hidden',
           },
-          ".cm-scroller": {
-            fontFamily: "inherit",
-            lineHeight: "1.5",
-            overflow: "auto",
-            maxHeight: "100%",
+          '.cm-scroller': {
+            fontFamily: 'inherit',
+            lineHeight: '1.5',
+            overflow: 'auto',
+            maxHeight: '100%',
           },
-          ".cm-content": {
-            padding: "16px",
-            minHeight: "calc(100vh - 200px)", // Ensure content has minimum height to enable scrolling
-            paddingBottom: "50vh", // Extra bottom padding
+          '.cm-content': {
+            padding: '16px',
+            minHeight: 'calc(100vh - 200px)', // Ensure content has minimum height to enable scrolling
+            paddingBottom: '50vh', // Extra bottom padding
           },
         },
-        theme === "dark" ? { dark: true } : undefined
+        theme === 'dark' ? { dark: true } : undefined
       ),
       EditorView.lineWrapping,
     ];
 
     return baseExtensions;
-  }, [theme, wordWrapEnabled, keyboardCallbacks, cursorPositionExtension]);
+  }, [theme, keyboardCallbacks, cursorPositionExtension]);
 
   if (isLoading) {
     return (
@@ -330,7 +333,7 @@ export const SectionEditor: React.FC = () => {
             <input
               type="text"
               value={sectionTitle}
-              onChange={(e) => setSectionTitle(e.target.value)}
+              onChange={e => setSectionTitle(e.target.value)}
               className="text-xl font-semibold bg-transparent border-b border-transparent hover:border-gray-300 focus:border-gray-500 focus:outline-none px-1 w-[36rem]"
               placeholder="Section title..."
             />
@@ -369,7 +372,7 @@ export const SectionEditor: React.FC = () => {
             <button
               onClick={() => setShowPreview(!showPreview)}
               className="p-2 rounded-lg hover-bg"
-              title={showPreview ? "Hide preview" : "Show preview"}
+              title={showPreview ? 'Hide preview' : 'Show preview'}
             >
               {showPreview ? (
                 <CodeIcon
@@ -410,24 +413,24 @@ export const SectionEditor: React.FC = () => {
       <div className="flex-1 flex overflow-hidden">
         {/* Editor */}
         <div
-          className={showPreview ? "w-1/2" : "w-full"}
+          className={showPreview ? 'w-1/2' : 'w-full'}
           style={{
-            height: "100%",
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
+            height: '100%',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
-          <div style={{ flex: "1", minHeight: "0" }}>
+          <div style={{ flex: '1', minHeight: '0' }}>
             <CodeMirror
               value={content}
-              onChange={(val) => setContent(val)}
-              onCreateEditor={(view) => {
+              onChange={val => setContent(val)}
+              onCreateEditor={view => {
                 setEditorView(view);
                 updateCursorPosition(view);
               }}
               extensions={extensions}
-              theme={theme === "dark" ? oneDark : undefined}
+              theme={theme === 'dark' ? oneDark : undefined}
               placeholder="Start writing in Markdown...\n\n# Heading 1\n## Heading 2\n\n**Bold text** and *italic text*\n\n- List item\n- Another item\n\n[Link text](https://example.com)"
               basicSetup={{
                 lineNumbers: true,
@@ -442,7 +445,7 @@ export const SectionEditor: React.FC = () => {
                 searchKeymap: true,
               }}
               height="100%"
-              style={{ height: "100%" }}
+              style={{ height: '100%' }}
             />
           </div>
 

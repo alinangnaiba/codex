@@ -58,19 +58,34 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
+        onKeyDown={e => {
+          if (e.key === 'Escape') {
+            onClose();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Close modal"
       />
-      
+
       {/* Modal */}
-      <div className="relative rounded-lg shadow-xl w-full max-w-md mx-4" style={{ backgroundColor: 'var(--color-card)' }}>
+      <div
+        className="relative rounded-lg shadow-xl w-full max-w-md mx-4"
+        style={{ backgroundColor: 'var(--color-card)' }}
+      >
         {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1.5 rounded-md hover-bg"
         >
-          <X size={20} weight="regular" style={{ color: 'var(--color-text-muted)' }} />
+          <X
+            size={20}
+            weight="regular"
+            style={{ color: 'var(--color-text-muted)' }}
+          />
         </button>
 
         <div className="p-6">
@@ -80,7 +95,12 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
               <WarningIcon size={24} weight="duotone" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-text)' }}>{title}</h3>
+              <h3
+                className="text-lg font-semibold mb-2"
+                style={{ color: 'var(--color-text)' }}
+              >
+                {title}
+              </h3>
               <p style={{ color: 'var(--color-text-muted)' }}>{message}</p>
             </div>
           </div>

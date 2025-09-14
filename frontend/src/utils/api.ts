@@ -46,8 +46,10 @@ export interface Settings {
 export const codexAPI = {
   getAll: () => App.GetAllCodexes(),
   search: (query: string) => App.SearchCodexes(query),
-  create: (title: string, description: string) => App.CreateCodex(title, description),
-  update: (id: number, title: string, description: string) => App.UpdateCodex(id, title, description),
+  create: (title: string, description: string) =>
+    App.CreateCodex(title, description),
+  update: (id: number, title: string, description: string) =>
+    App.UpdateCodex(id, title, description),
   delete: (id: number) => App.DeleteCodex(id),
   pin: (id: number, isPinned: boolean) => App.PinCodex(id, isPinned),
   getWithSections: (id: number) => App.GetCodexWithSections(id),
@@ -57,10 +59,12 @@ export const codexAPI = {
 // Section API
 export const sectionAPI = {
   create: (codexId: number, title: string) => App.CreateSection(codexId, title),
-  update: (id: number, title: string, content: string) => App.UpdateSection(id, title, content),
+  update: (id: number, title: string, content: string) =>
+    App.UpdateSection(id, title, content),
   getContent: (sectionId: number) => App.GetSectionContent(sectionId),
   delete: (id: number) => App.DeleteSection(id),
-  setComplete: (id: number, isComplete: boolean) => App.SetSectionComplete(id, isComplete),
+  setComplete: (id: number, isComplete: boolean) =>
+    App.SetSectionComplete(id, isComplete),
   getByCodex: (codexId: number) => App.GetSectionsByCodex(codexId),
 };
 
