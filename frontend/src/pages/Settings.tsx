@@ -40,30 +40,19 @@ export const Settings: React.FC = () => {
     try {
       setIsLoading(true);
 
-      // Get default content path from backend
       const defaultPath = await settingsAPI.getDefaultContentPath();
       setDefaultContentPath(defaultPath);
 
-      // Get current settings
       const settings = await settingsAPI.getAll();
 
       if (settings.contentPath) {
         setContentPath(settings.contentPath);
-        // setOriginalContentPath(settings.contentPath);
         setUseDefaultLocation(false);
-      } else {
-        // setOriginalContentPath(defaultPath);
       }
 
       // Set auto-save setting
       const autoSaveValue = settings.autoSave === 'true';
       setAutoSave(autoSaveValue);
-      // setOriginalAutoSave(autoSaveValue);
-
-      // Set word wrap setting (default to true if not set)
-      // const wordWrapValue = settings.wordWrap !== 'false';
-      // setWordWrap(wordWrapValue);
-      // setOriginalWordWrap(wordWrapValue);
     } catch (error) {
       console.error('Failed to load settings:', error);
     } finally {
@@ -76,7 +65,6 @@ export const Settings: React.FC = () => {
       const dir = await fileAPI.selectDirectory();
       if (dir) {
         setContentPath(dir);
-        // Auto-save the selected directory
         autoSaveSettings({ contentPath: dir });
       }
     } catch (error) {
@@ -89,29 +77,16 @@ export const Settings: React.FC = () => {
     setUseDefaultLocation(isDefault);
     if (isDefault) {
       setContentPath('');
-      // Save with default path
       autoSaveSettings({ contentPath: defaultContentPath });
     }
   };
 
-  // Auto-save individual settings
   const autoSaveSettings = async (settingsToSave: {
     [key: string]: string;
   }) => {
     try {
       setSaveMessage('');
       await settingsAPI.save(settingsToSave);
-
-      // Update original values for the changed settings
-      if (settingsToSave.autoSave !== undefined) {
-        // setOriginalAutoSave(settingsToSave.autoSave === 'true');
-      }
-      if (settingsToSave.wordWrap !== undefined) {
-        // setOriginalWordWrap(settingsToSave.wordWrap === 'true');
-      }
-      if (settingsToSave.contentPath !== undefined) {
-        // setOriginalContentPath(settingsToSave.contentPath);
-      }
 
       setSaveMessage('Settings saved successfully!');
 
@@ -129,14 +104,12 @@ export const Settings: React.FC = () => {
     }
   };
 
-  // Handle auto-save toggle
   const handleAutoSaveToggle = () => {
     const newValue = !autoSave;
     setAutoSave(newValue);
     autoSaveSettings({ autoSave: newValue.toString() });
   };
 
-  // Handle content path changes
   const handleContentPathChange = (newPath: string) => {
     setContentPath(newPath);
     // Only auto-save if we have a valid path and not using default

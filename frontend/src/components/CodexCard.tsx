@@ -28,7 +28,7 @@ export const CodexCard: React.FC<CodexCardProps> = ({
 
   return (
     <div
-      className="card card-hover p-5 cursor-pointer relative group"
+      className="card card-hover p-5 cursor-pointer relative group h-48 w-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onOpen(codex)}

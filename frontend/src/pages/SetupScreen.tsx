@@ -51,8 +51,6 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onComplete }) => {
   };
 
   const handleComplete = async () => {
-    // contentPath can be empty string to use default location
-
     setIsLoading(true);
     try {
       await settingsAPI.save({

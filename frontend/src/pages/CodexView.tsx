@@ -68,10 +68,8 @@ export const CodexView: React.FC = () => {
         const data = await codexAPI.getWithSections(codexId);
         setCodex(data);
 
-        // Update breadcrumb with codex title
         setCodexTitle(data.title);
 
-        // Preload headings for all sections to show carets immediately
         if (data.sections && data.sections.length > 0) {
           const headingsPromises = data.sections.map(async section => {
             const headings = await getSectionHeadings(section.id);
@@ -91,7 +89,6 @@ export const CodexView: React.FC = () => {
           setAllSectionHeadings(headingsMap);
           setAllNestedHeadings(nestedHeadingsMap);
 
-          // Select first incomplete section by default, or first section if all are complete
           const firstIncomplete = data.sections.find(
             section => !section.isComplete
           );
@@ -99,7 +96,6 @@ export const CodexView: React.FC = () => {
             firstIncomplete || data.sections[data.sections.length - 1];
           setSelectedSection(selectedSec);
 
-          // Auto-expand the selected section if it has headings
           const selectedHeadings = headingsMap.get(selectedSec.id) || [];
           if (selectedHeadings.length > 0) {
             setExpandedSections(new Set([selectedSec.id]));
@@ -123,7 +119,6 @@ export const CodexView: React.FC = () => {
         const content = await sectionAPI.getContent(sectionId);
         setSectionContent(content);
 
-        // Extract H2 and H3 headings from the content
         const headings = extractHeadings(content);
 
         setAllSectionHeadings(prev => new Map(prev).set(sectionId, headings));
@@ -150,7 +145,6 @@ export const CodexView: React.FC = () => {
       loadCodex(parseInt(id));
     }
 
-    // Cleanup breadcrumbs when component unmounts
     return () => {
       setCodexTitle('');
     };
@@ -190,7 +184,6 @@ export const CodexView: React.FC = () => {
     try {
       await sectionAPI.delete(deletingSection.id);
 
-      // If we deleted the selected section, clear selection
       if (selectedSection?.id === deletingSection.id) {
         setSelectedSection(null);
         setSectionContent('');
@@ -199,7 +192,6 @@ export const CodexView: React.FC = () => {
       toast.success('Section deleted successfully');
       setDeletingSection(null);
 
-      // Reload codex
       await loadCodex(codex.id);
     } catch (error) {
       console.error('Failed to delete section:', error);
@@ -212,7 +204,6 @@ export const CodexView: React.FC = () => {
     try {
       await sectionAPI.setComplete(section.id, !section.isComplete);
 
-      // Reload codex to get updated sections
       if (codex) {
         await loadCodex(codex.id);
       }
@@ -255,7 +246,7 @@ export const CodexView: React.FC = () => {
       setExpandedH2Headings(prev => {
         const newSet = new Set<string>();
         if (!prev.has(headingId)) {
-          newSet.add(headingId); // Only expand this one, collapsing all others
+          newSet.add(headingId);
         }
         // If it was already expanded, leave newSet empty to collapse all
         return newSet;

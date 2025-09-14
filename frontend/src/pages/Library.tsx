@@ -37,7 +37,6 @@ export const CodexLibrary: React.FC = () => {
       const codexList = Array.isArray(allCodexes) ? allCodexes : [];
       setCodexes(codexList);
 
-      // Load progress for each codex
       const progressData = new Map<number, CodexProgress>();
       for (const codex of codexList) {
         try {

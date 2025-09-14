@@ -9,17 +9,14 @@ import (
 	"codex-wails/internal/models"
 )
 
-// CodexRepository handles all Codex-related database operations
 type CodexRepository struct {
 	db *DB
 }
 
-// NewCodexRepository creates a new CodexRepository
 func NewCodexRepository(db *DB) *CodexRepository {
 	return &CodexRepository{db: db}
 }
 
-// Create creates a new Codex
 func (r *CodexRepository) Create(title, description string) (*models.Codex, error) {
 	query := `
 		INSERT INTO codexes (title, description, created_at, updated_at)
@@ -38,7 +35,6 @@ func (r *CodexRepository) Create(title, description string) (*models.Codex, erro
 		return nil, fmt.Errorf("failed to get last insert id: %w", err)
 	}
 
-	// Fetch the created codex
 	codex := &models.Codex{
 		ID:          int(id),
 		Title:       title,
@@ -51,7 +47,6 @@ func (r *CodexRepository) Create(title, description string) (*models.Codex, erro
 	return codex, nil
 }
 
-// GetAll retrieves all codexes
 func (r *CodexRepository) GetAll() ([]models.Codex, error) {
 	query := `
 		SELECT id, title, description, is_pinned, created_at, updated_at
@@ -85,7 +80,6 @@ func (r *CodexRepository) GetAll() ([]models.Codex, error) {
 	return codexes, nil
 }
 
-// GetByID retrieves a codex by ID
 func (r *CodexRepository) GetByID(id int) (*models.Codex, error) {
 	query := `
 		SELECT id, title, description, is_pinned, created_at, updated_at
@@ -113,7 +107,6 @@ func (r *CodexRepository) GetByID(id int) (*models.Codex, error) {
 	return &codex, nil
 }
 
-// Update updates a codex
 func (r *CodexRepository) Update(id int, title, description string) error {
 	query := `
 		UPDATE codexes
@@ -138,7 +131,6 @@ func (r *CodexRepository) Update(id int, title, description string) error {
 	return nil
 }
 
-// Delete deletes a codex
 func (r *CodexRepository) Delete(id int) error {
 	query := `DELETE FROM codexes WHERE id = ?`
 
@@ -159,8 +151,23 @@ func (r *CodexRepository) Delete(id int) error {
 	return nil
 }
 
-// SetPinned sets the pinned status of a codex
 func (r *CodexRepository) SetPinned(id int, isPinned bool) error {
+	if isPinned {
+		pinnedCount, err := r.GetPinnedCount()
+		if err != nil {
+			return fmt.Errorf("failed to check pinned count: %w", err)
+		}
+
+		currentCodex, err := r.GetByID(id)
+		if err != nil {
+			return fmt.Errorf("failed to get codex: %w", err)
+		}
+
+		if !currentCodex.IsPinned && pinnedCount >= 10 {
+			return fmt.Errorf("cannot pin more than 10 codexes")
+		}
+	}
+
 	query := `
 		UPDATE codexes
 		SET is_pinned = ?, updated_at = ?
@@ -184,7 +191,6 @@ func (r *CodexRepository) SetPinned(id int, isPinned bool) error {
 	return nil
 }
 
-// Search searches for codexes by title or description
 func (r *CodexRepository) Search(query string) ([]models.Codex, error) {
 	searchTerm := "%" + strings.ToLower(query) + "%"
 	sqlQuery := `
@@ -220,7 +226,6 @@ func (r *CodexRepository) Search(query string) ([]models.Codex, error) {
 	return codexes, nil
 }
 
-// GetWithSections retrieves a codex with all its sections
 func (r *CodexRepository) GetWithSections(id int) (*models.CodexWithSections, error) {
 	codex, err := r.GetByID(id)
 	if err != nil {
@@ -265,7 +270,6 @@ func (r *CodexRepository) GetWithSections(id int) (*models.CodexWithSections, er
 	}, nil
 }
 
-// GetProgress calculates the reading progress of a codex
 func (r *CodexRepository) GetProgress(id int) (*models.CodexProgress, error) {
 	query := `
 		SELECT 
@@ -293,4 +297,16 @@ func (r *CodexRepository) GetProgress(id int) (*models.CodexProgress, error) {
 	}
 
 	return progress, nil
+}
+
+func (r *CodexRepository) GetPinnedCount() (int, error) {
+	query := `SELECT COUNT(*) FROM codexes WHERE is_pinned = 1`
+
+	var count int
+	err := r.db.conn.QueryRow(query).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("failed to get pinned count: %w", err)
+	}
+
+	return count, nil
 }
