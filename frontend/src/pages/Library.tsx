@@ -8,6 +8,7 @@ import {
 } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { CodexCard } from '../components/CodexCard';
+import { CodexCarousel } from '../components/CodexCarousel';
 import { CreateCodexDialog } from '../components/CreateCodexDialog';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { LoadingSpinner } from '../components/LoadingSpinner';
@@ -216,19 +217,16 @@ export const CodexLibrary: React.FC = () => {
                   <PushPinIcon size={14} weight="fill" />
                   <span>Pinned</span>
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {pinnedCodexes.map(codex => (
-                    <CodexCard
-                      key={codex.id}
-                      codex={codex}
-                      progress={progressMap.get(codex.id)}
-                      onOpen={handleOpenCodex}
-                      onEdit={setEditingCodex}
-                      onDelete={setDeletingCodex}
-                      onTogglePin={handleTogglePin}
-                    />
-                  ))}
-                </div>
+                <CodexCarousel
+                  codexes={pinnedCodexes}
+                  progressMap={progressMap}
+                  onOpen={handleOpenCodex}
+                  onEdit={setEditingCodex}
+                  onDelete={setDeletingCodex}
+                  onTogglePin={handleTogglePin}
+                  maxItemsPerPage={4}
+                  minItemsPerPage={2}
+                />
               </div>
             )}
 

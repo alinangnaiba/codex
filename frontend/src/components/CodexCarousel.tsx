@@ -21,7 +21,7 @@ export const CodexCarousel: React.FC<CodexCarouselProps> = ({
   onEdit,
   onDelete,
   onTogglePin,
-  maxItemsPerPage = 5,
+  maxItemsPerPage = 4,
   minItemsPerPage = 2
 }) => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -34,8 +34,6 @@ export const CodexCarousel: React.FC<CodexCarouselProps> = ({
     
     const containerWidth = containerRef.current.offsetWidth;
     
-    // Use same breakpoints as Tailwind grid system
-    if (containerWidth >= 1536) return Math.min(5, maxItemsPerPage); // 2xl: 5 columns
     if (containerWidth >= 1280) return Math.min(4, maxItemsPerPage); // xl: 4 columns  
     if (containerWidth >= 1024) return Math.min(3, maxItemsPerPage); // lg: 3 columns
     if (containerWidth >= 768) return Math.min(2, maxItemsPerPage);  // md: 2 columns
@@ -86,7 +84,7 @@ export const CodexCarousel: React.FC<CodexCarouselProps> = ({
     <div className="relative" ref={containerRef}>
       {/* Carousel Content */}
       <div className="overflow-hidden">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {currentItems.map(codex => (
             <CodexCard
               key={codex.id}
