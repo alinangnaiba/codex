@@ -12,6 +12,7 @@ import {
   FilePlusIcon,
 } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
+import { useOpenExternalLinkHandlers } from '../utils/linkHandlers';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { codexAPI, sectionAPI, CodexWithSections, Section } from '../utils/api';
@@ -283,7 +284,11 @@ export const CodexView: React.FC = () => {
         setExpandedSections(prev => new Set(prev).add(section.id));
       }
     }
+
+    await loadSectionContent(section.id);
   };
+
+  const { handleClick: handleContentClick, handleKeyDown: handleContentKeyDown } = useOpenExternalLinkHandlers();
 
   if (isLoading) {
     return (
@@ -572,7 +577,13 @@ export const CodexView: React.FC = () => {
               </div>
 
               {/* Content */}
-              <div className="p-6">
+              <div 
+                className="p-6"
+                onClick={handleContentClick}
+                onKeyDown={handleContentKeyDown}
+                role="region"
+                aria-label="Section content"
+              >
                 {isLoadingContent ? (
                   <LoadingSpinner size="md" />
                 ) : sectionContent ? (
