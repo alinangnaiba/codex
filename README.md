@@ -3,7 +3,7 @@
 
 > A lightweight, local-first knowledge manager for desktop
 
-CodeX is a modern desktop application that helps you organize and manage your knowledge through structured collections called "codexes". Built with Go and React, it provides a clean, distraction-free environment for writing and organizing your notes, documentation, and ideas.
+CodeX is a modern desktop application that helps you organize and manage your knowledge through structured collection called "codex". Built with Go and React, it provides a clean, distraction-free environment for writing and organizing your notes, documentation, and ideas.
 
 ## ✨ Features
 
