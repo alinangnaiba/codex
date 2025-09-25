@@ -84,3 +84,8 @@ export const fileAPI = {
   selectMarkdownFile: () => App.SelectMarkdownFile(),
   importMarkdown: (filePath: string) => App.ImportMarkdownFile(filePath),
 };
+
+// Window operations
+export const windowAPI = {
+  saveCurrentSize: () => App.SaveCurrentWindowSize(),
+};

@@ -32,6 +32,8 @@ export function ImportMarkdownFile(arg1:string):Promise<string>;
 
 export function PinCodex(arg1:number,arg2:boolean):Promise<void>;
 
+export function SaveCurrentWindowSize():Promise<void>;
+
 export function SaveSettings(arg1:Record<string, string>):Promise<void>;
 
 export function SearchCodexes(arg1:string):Promise<Array<dto.CodexResponse>>;

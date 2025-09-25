@@ -15,11 +15,14 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp()
 
+	// Get saved window size or use defaults
+	width, height := app.getInitialWindowSize()
+
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "CodeX",
-		Width:  1280,
-		Height: 800,
+		Width:  width,
+		Height: height,
 		MinWidth:  1024,
 		MinHeight: 600,
 		AssetServer: &assetserver.Options{

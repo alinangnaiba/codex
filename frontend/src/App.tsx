@@ -10,7 +10,7 @@ import { SetupScreen } from './pages/SetupScreen';
 import { Settings } from './pages/Settings';
 import { AppLayout } from './components/AppLayout';
 import { LoadingSpinner } from './components/LoadingSpinner';
-import { settingsAPI } from './utils/api';
+import { settingsAPI, windowAPI } from './utils/api';
 import './style.css';
 
 function App() {
@@ -18,6 +18,23 @@ function App() {
 
   useEffect(() => {
     checkInitialization();
+
+    // Track window resizes with 5-second debounce
+    let resizeTimeout: number;
+    const handleResize = () => {
+      // Debounce the save to avoid excessive calls - only save after 5 seconds of no resize
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        windowAPI.saveCurrentSize().catch(console.error);
+      }, 5000); // Save 5 seconds after resize stops
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(resizeTimeout);
+    };
   }, []);
 
   const checkInitialization = async () => {

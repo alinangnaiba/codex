@@ -62,6 +62,10 @@ export function PinCodex(arg1, arg2) {
   return window['go']['main']['App']['PinCodex'](arg1, arg2);
 }
 
+export function SaveCurrentWindowSize() {
+  return window['go']['main']['App']['SaveCurrentWindowSize']();
+}
+
 export function SaveSettings(arg1) {
   return window['go']['main']['App']['SaveSettings'](arg1);
 }

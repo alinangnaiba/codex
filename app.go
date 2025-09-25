@@ -47,26 +47,110 @@ func NewApp() *App {
 	}
 }
 
+// getInitialWindowSize loads saved window size from settings or returns defaults
+func (a *App) getInitialWindowSize() (int, int) {
+	// Default values
+	defaultWidth, defaultHeight := 1280, 800
+	minWidth, minHeight := 1024, 600
+
+	db, err := database.New(a.config.DataPath)
+	if err != nil {
+		return defaultWidth, defaultHeight
+	}
+	defer db.Close()
+
+	settingsRepo := database.NewSettingsRepository(db)
+
+	if err := settingsRepo.SetDefaults(); err != nil {
+		return defaultWidth, defaultHeight
+	}
+
+	widthStr, err := settingsRepo.Get("windowWidth")
+	if err != nil {
+		return defaultWidth, defaultHeight
+	}
+
+	heightStr, err := settingsRepo.Get("windowHeight")
+	if err != nil {
+		return defaultWidth, defaultHeight
+	}
+
+	width, err := strconv.Atoi(widthStr)
+	if err != nil || width < minWidth {
+		width = defaultWidth
+	}
+
+	height, err := strconv.Atoi(heightStr)
+	if err != nil || height < minHeight {
+		height = defaultHeight
+	}
+
+	return width, height
+}
+
+// SaveCurrentWindowSize gets and saves the current window size to settings
+func (a *App) SaveCurrentWindowSize() error {
+	if a.ctx == nil || a.settingsHandler == nil {
+		return fmt.Errorf("app not properly initialized")
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			if a.logger != nil {
+				a.logger.Warn("Recovered from panic while getting window size:", r)
+			}
+		}
+	}()
+
+	width, height := runtime.WindowGetSize(a.ctx)
+
+	minWidth, minHeight := 1024, 600
+	if width <= 0 || height <= 0 || width < minWidth || height < minHeight {
+		if a.logger != nil {
+			a.logger.Warn("Invalid window size, not saving:", width, "x", height)
+		}
+		return fmt.Errorf("invalid window size: %dx%d", width, height)
+	}
+
+	widthStr := strconv.Itoa(width)
+	heightStr := strconv.Itoa(height)
+
+	if err := a.settingsHandler.Set("windowWidth", widthStr); err != nil {
+		if a.logger != nil {
+			a.logger.Error("Failed to save window width:", err)
+		}
+		return err
+	}
+
+	if err := a.settingsHandler.Set("windowHeight", heightStr); err != nil {
+		if a.logger != nil {
+			a.logger.Error("Failed to save window height:", err)
+		}
+		return err
+	}
+
+	if a.logger != nil {
+		a.logger.Info("Saved window size:", width, "x", height)
+	}
+	return nil
+}
+
 // startup is called when the app starts. The context is saved
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 
-	// Initialize logger first
 	a.logger = logger.New(a.config.DataPath, a.config.IsDevelopment)
 
-	// Set up panic recovery with logger
 	defer recovery.HandlePanic(a.logger)
 
 	a.logger.Info("Application starting up...")
 
 	runtime.LogInfo(a.ctx, "Application starting up...")
 
-	// Initialize database and storage
 	if err := a.initializeServices(); err != nil {
 		a.logger.Error("Failed to initialize services:", err)
 		runtime.LogErrorf(a.ctx, "Failed to initialize services: %v", err)
-		// Don't return here - we still want the app to run so user can see the error
 	} else {
 		a.logger.Info("Services initialized successfully")
 		runtime.LogInfo(a.ctx, "Services initialized successfully")
@@ -77,14 +161,12 @@ func (a *App) startup(ctx context.Context) {
 func (a *App) shutdown(ctx context.Context) {
 	a.logger.Info("Application shutting down...")
 
-	// Close storage service
 	if a.storageService != nil {
 		if err := a.storageService.Close(); err != nil {
 			a.logger.Warn("Failed to close storage service:", err)
 		}
 	}
 
-	// Close database
 	if a.db != nil {
 		if err := a.db.Close(); err != nil {
 			a.logger.Error("Failed to close database:", err)
@@ -98,7 +180,6 @@ func (a *App) shutdown(ctx context.Context) {
 
 // initializeServices initializes the database and storage services
 func (a *App) initializeServices() error {
-	// Use config data path
 	appDataDir := a.config.DataPath
 	a.logger.Info("App data directory:", appDataDir)
 	runtime.LogInfof(a.ctx, "App data directory: %s", appDataDir)
@@ -107,7 +188,6 @@ func (a *App) initializeServices() error {
 		return fmt.Errorf("failed to create app data directory: %w", err)
 	}
 
-	// Initialize database
 	runtime.LogInfo(a.ctx, "Initializing database...")
 	db, err := database.New(appDataDir)
 	if err != nil {
@@ -116,25 +196,20 @@ func (a *App) initializeServices() error {
 	a.db = db
 	runtime.LogInfo(a.ctx, "Database initialized")
 
-	// Initialize repositories
 	codexRepo := database.NewCodexRepository(db)
 	sectionRepo := database.NewSectionRepository(db)
 	settingsRepo := database.NewSettingsRepository(db)
 	runtime.LogInfo(a.ctx, "Repositories initialized")
 
-	// Set default settings
 	if err := settingsRepo.SetDefaults(); err != nil {
 		return fmt.Errorf("failed to set default settings: %w", err)
 	}
 	runtime.LogInfo(a.ctx, "Default settings applied")
 
-	// Configure logger from settings
 	a.configureLogger(settingsRepo)
 
-	// Get content path from settings
 	contentPath, err := settingsRepo.Get("contentPath")
 	if err != nil || contentPath == "" {
-		// Use default content path if not set
 		contentPath = filepath.Join(appDataDir, "content")
 		settingsRepo.Set("contentPath", contentPath)
 		runtime.LogInfof(a.ctx, "Using default content path: %s", contentPath)
@@ -142,7 +217,6 @@ func (a *App) initializeServices() error {
 		runtime.LogInfof(a.ctx, "Using existing content path: %s", contentPath)
 	}
 
-	// Initialize storage service
 	storageService, err := storage.NewService(contentPath)
 	if err != nil {
 		return fmt.Errorf("failed to initialize storage: %w", err)
@@ -150,21 +224,16 @@ func (a *App) initializeServices() error {
 	a.storageService = storageService
 	runtime.LogInfo(a.ctx, "Storage service initialized")
 
-	// Initialize adapters
 	storageAdapter := adapters.NewStorageServiceAdapter(storageService)
-
-	// Initialize domain repositories
 	codexDomainRepo := codex.NewRepository(codexRepo)
 	sectionDomainRepo := section.NewRepository(sectionRepo)
 	settingsDomainRepo := settings.NewRepository(settingsRepo)
 
-	// Initialize domain services
 	codexService := codex.NewService(codexDomainRepo, storageAdapter)
 	sectionService := section.NewService(sectionDomainRepo, storageAdapter)
 	settingsService := settings.NewService(settingsDomainRepo, storageAdapter)
 	fileService := file.NewService(storageAdapter)
 
-	// Initialize domain handlers
 	a.codexHandler = codex.NewHandler(codexService)
 	a.sectionHandler = section.NewHandler(sectionService)
 	a.settingsHandler = settings.NewHandler(settingsService, a.updateStorageService)
@@ -176,7 +245,6 @@ func (a *App) initializeServices() error {
 
 // configureLogger applies logger settings from database
 func (a *App) configureLogger(settingsRepo *database.SettingsRepository) {
-	// Configure log level
 	if logLevel, err := settingsRepo.Get("logLevel"); err == nil {
 		switch logLevel {
 		case "debug":
@@ -190,7 +258,6 @@ func (a *App) configureLogger(settingsRepo *database.SettingsRepository) {
 		}
 	}
 
-	// Configure log retention
 	if retentionDays, err := settingsRepo.Get("logRetentionDays"); err == nil {
 		if days, err := strconv.Atoi(retentionDays); err == nil && days > 0 && days <= 30 {
 			a.logger.SetRetentionDays(days)
@@ -200,20 +267,17 @@ func (a *App) configureLogger(settingsRepo *database.SettingsRepository) {
 
 // updateStorageService updates the storage service when content path changes
 func (a *App) updateStorageService(newPath string) error {
-	// Create new storage service
 	newStorageService, err := storage.NewService(newPath)
 	if err != nil {
 		return err
 	}
 
-	// Clean up old storage service if it exists
 	if a.storageService != nil {
 		if err := a.storageService.Close(); err != nil {
 			a.logger.Warn("Failed to close old storage service:", err)
 		}
 	}
 
-	// Replace with new service
 	a.storageService = newStorageService
 	a.logger.Info("Storage service updated to new path:", newPath)
 
