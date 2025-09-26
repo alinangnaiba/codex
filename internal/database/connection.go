@@ -9,38 +9,32 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-// DB holds the database connection
 type DB struct {
 	conn *sql.DB
 }
 
-// New creates a new database connection
 func New(dataPath string) (*DB, error) {
-	// Ensure the data directory exists
 	if err := os.MkdirAll(dataPath, 0755); err != nil {
 		return nil, fmt.Errorf("failed to create data directory: %w", err)
 	}
 
 	dbPath := filepath.Join(dataPath, "codex.db")
-	
+
 	conn, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
-	// Enable foreign keys
 	if _, err := conn.Exec("PRAGMA foreign_keys = ON"); err != nil {
 		return nil, fmt.Errorf("failed to enable foreign keys: %w", err)
 	}
 
-	// Enable WAL mode for better concurrency
 	if _, err := conn.Exec("PRAGMA journal_mode = WAL"); err != nil {
 		return nil, fmt.Errorf("failed to enable WAL mode: %w", err)
 	}
 
 	db := &DB{conn: conn}
-	
-	// Initialize the database schema
+
 	if err := db.InitSchema(); err != nil {
 		return nil, fmt.Errorf("failed to initialize schema: %w", err)
 	}
@@ -48,7 +42,6 @@ func New(dataPath string) (*DB, error) {
 	return db, nil
 }
 
-// Close closes the database connection
 func (db *DB) Close() error {
 	if db.conn != nil {
 		return db.conn.Close()
@@ -96,7 +89,6 @@ func (db *DB) InitSchema() error {
 	return nil
 }
 
-// GetConn returns the underlying database connection
 func (db *DB) GetConn() *sql.DB {
 	return db.conn
 }

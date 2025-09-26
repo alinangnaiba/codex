@@ -27,9 +27,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setThemeState] = useState<Theme>('light');
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load theme from settings on mount
   useEffect(() => {
-    let isMounted = true; // Track component mount status
+    let isMounted = true;
 
     const loadTheme = async () => {
       try {
@@ -51,7 +50,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
     loadTheme();
 
-    // Cleanup function to prevent state updates after unmount
     return () => {
       isMounted = false;
     };
@@ -70,7 +68,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     setThemeState(newTheme);
     applyTheme(newTheme);
 
-    // Save to settings (fire and forget to prevent memory leaks)
     settingsAPI.set('theme', newTheme).catch(error => {
       console.error('Failed to save theme:', error);
     });
@@ -82,7 +79,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   };
 
   if (!isLoaded) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   return (

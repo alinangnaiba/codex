@@ -7,17 +7,17 @@ import (
 	"codex-wails/internal/models"
 )
 
-// SettingsRepository handles all Settings-related database operations
+/*
+TODO: Use squirrel to construct queries
+*/
 type SettingsRepository struct {
 	db *DB
 }
 
-// NewSettingsRepository creates a new SettingsRepository
 func NewSettingsRepository(db *DB) *SettingsRepository {
 	return &SettingsRepository{db: db}
 }
 
-// Get retrieves a setting by key
 func (r *SettingsRepository) Get(key string) (string, error) {
 	query := `SELECT value FROM settings WHERE key = ?`
 
@@ -33,7 +33,6 @@ func (r *SettingsRepository) Get(key string) (string, error) {
 	return value, nil
 }
 
-// Set creates or updates a setting
 func (r *SettingsRepository) Set(key, value string) error {
 	updateQuery := `UPDATE settings SET value = ? WHERE key = ?`
 	result, err := r.db.conn.Exec(updateQuery, value, key)
@@ -56,7 +55,6 @@ func (r *SettingsRepository) Set(key, value string) error {
 	return nil
 }
 
-// GetAll retrieves all settings
 func (r *SettingsRepository) GetAll() ([]models.Setting, error) {
 	query := `SELECT key, value FROM settings ORDER BY key`
 
@@ -79,7 +77,6 @@ func (r *SettingsRepository) GetAll() ([]models.Setting, error) {
 	return settings, nil
 }
 
-// GetAllAsMap retrieves all settings as a map
 func (r *SettingsRepository) GetAllAsMap() (map[string]string, error) {
 	settings, err := r.GetAll()
 	if err != nil {
@@ -94,7 +91,6 @@ func (r *SettingsRepository) GetAllAsMap() (map[string]string, error) {
 	return settingsMap, nil
 }
 
-// SetBatch sets multiple settings at once
 func (r *SettingsRepository) SetBatch(settings map[string]string) error {
 	tx, err := r.db.conn.Begin()
 	if err != nil {
@@ -130,7 +126,6 @@ func (r *SettingsRepository) SetBatch(settings map[string]string) error {
 	return nil
 }
 
-// Delete removes a setting
 func (r *SettingsRepository) Delete(key string) error {
 	query := `DELETE FROM settings WHERE key = ?`
 
@@ -151,7 +146,6 @@ func (r *SettingsRepository) Delete(key string) error {
 	return nil
 }
 
-// SetDefaults sets default settings if they don't exist
 func (r *SettingsRepository) SetDefaults() error {
 	defaults := map[string]string{
 		"theme":            "light",

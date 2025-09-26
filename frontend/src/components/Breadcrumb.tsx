@@ -62,7 +62,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({
   const items = getBreadcrumbItems();
 
   if (items.length <= 1) {
-    return null; // Don't show breadcrumbs on home page
+    return null;
   }
 
   return (
