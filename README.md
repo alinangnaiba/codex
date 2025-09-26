@@ -126,6 +126,16 @@ Found an issue? Help us improve CodeX by reporting bugs:
 
 Please [open an issue](../../issues) with the bug report template.
 
+## 🌟 Feature Requests
+
+Have an idea to make CodeX better? We’d love to hear it. Please open a new GitHub issue using the "feature request" template and include:
+
+- A short summary of the idea
+- Why it would be useful and who benefits
+- Any mockups, examples, or links that help explain the request
+
+This helps us prioritize work and evaluate feasibility — thank you for contributing ideas!
+
 ## 📄 License
 
 This project is licensed under the MIT License. See the [`LICENSE`](LICENSE) file for details.
