@@ -9,6 +9,9 @@ import (
 	"codex-wails/internal/models"
 )
 
+/*
+TODO: Use squirrel to construct queries
+*/
 type CodexRepository struct {
 	db *DB
 }

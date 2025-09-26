@@ -8,8 +8,6 @@ import { BrowserOpenURL } from '../../wailsjs/runtime/runtime';
 export const useOpenExternalLinkHandlers = () => {
   const handleClick = useCallback((event: React.MouseEvent) => {
     const target = event.target as HTMLElement;
-    
-    // Check if the clicked element is a link or is inside a link
     const link = target.closest('a');
     if (link && link.href) {
       event.preventDefault();
