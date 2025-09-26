@@ -8,19 +8,18 @@ import (
 	"codex-wails/internal/models"
 )
 
-// SectionRepository handles all Section-related database operations
+/*
+TODO: Use squirrel to construct queries
+*/
 type SectionRepository struct {
 	db *DB
 }
 
-// NewSectionRepository creates a new SectionRepository
 func NewSectionRepository(db *DB) *SectionRepository {
 	return &SectionRepository{db: db}
 }
 
-// Create creates a new Section
 func (r *SectionRepository) Create(codexID int, title string) (*models.Section, error) {
-	// Get the max order index for this codex
 	var maxOrder sql.NullInt32
 	err := r.db.conn.QueryRow(
 		"SELECT MAX(order_index) FROM sections WHERE codex_id = ?",
@@ -69,7 +68,6 @@ func (r *SectionRepository) Create(codexID int, title string) (*models.Section, 
 	return section, nil
 }
 
-// GetByID retrieves a section by ID
 func (r *SectionRepository) GetByID(id int) (*models.Section, error) {
 	query := `
 		SELECT id, codex_id, title, file_path, is_complete, order_index, created_at, updated_at
@@ -103,7 +101,6 @@ func (r *SectionRepository) GetByID(id int) (*models.Section, error) {
 	return &section, nil
 }
 
-// GetByCodexID retrieves all sections for a codex
 func (r *SectionRepository) GetByCodexID(codexID int) ([]models.Section, error) {
 	query := `
 		SELECT id, codex_id, title, file_path, is_complete, order_index, created_at, updated_at
@@ -215,9 +212,7 @@ func (r *SectionRepository) SetComplete(id int, isComplete bool) error {
 	return nil
 }
 
-// Delete deletes a section
 func (r *SectionRepository) Delete(id int) error {
-	// Get the section to find its order_index and codex_id
 	var codexID, orderIndex int
 	err := r.db.conn.QueryRow(
 		"SELECT codex_id, order_index FROM sections WHERE id = ?",
@@ -230,7 +225,6 @@ func (r *SectionRepository) Delete(id int) error {
 		return fmt.Errorf("failed to get section info: %w", err)
 	}
 
-	// Delete the section
 	result, err := r.db.conn.Exec("DELETE FROM sections WHERE id = ?", id)
 	if err != nil {
 		return fmt.Errorf("failed to delete section: %w", err)
@@ -245,7 +239,6 @@ func (r *SectionRepository) Delete(id int) error {
 		return fmt.Errorf("section not found")
 	}
 
-	// Reorder remaining sections
 	_, err = r.db.conn.Exec(
 		`UPDATE sections 
 		 SET order_index = order_index - 1 
@@ -259,7 +252,6 @@ func (r *SectionRepository) Delete(id int) error {
 	return nil
 }
 
-// ReorderSections updates the order of sections
 func (r *SectionRepository) ReorderSections(sectionIDs []int) error {
 	tx, err := r.db.conn.Begin()
 	if err != nil {
