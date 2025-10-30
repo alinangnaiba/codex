@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/go-git/go-git/v6"
 	"github.com/go-git/go-git/v6/config"
@@ -16,53 +17,53 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// Repository handles low-level Git operations
-type Repository struct {
+// Operations handles low-level Git and GitHub API operations
+type Operations struct {
 	contentPath string
 	repo        *git.Repository
 }
 
-// NewRepository creates a new repository instance
-func NewRepository(contentPath string) *Repository {
-	return &Repository{
+// NewOperations creates a new operations instance
+func NewOperations(contentPath string) *Operations {
+	return &Operations{
 		contentPath: contentPath,
 	}
 }
 
 // InitializeGit initializes a git repository in the content directory
-func (r *Repository) InitializeGit() error {
-	repo, err := git.PlainInit(r.contentPath, false)
+func (o *Operations) InitializeGit() error {
+	repo, err := git.PlainInit(o.contentPath, false)
 	if err != nil {
 		return fmt.Errorf("failed to initialize git repository: %w", err)
 	}
-	r.repo = repo
+	o.repo = repo
 	return nil
 }
 
 // OpenRepository opens an existing git repository
-func (r *Repository) OpenRepository() error {
-	repo, err := git.PlainOpen(r.contentPath)
+func (o *Operations) OpenRepository() error {
+	repo, err := git.PlainOpen(o.contentPath)
 	if err != nil {
 		return fmt.Errorf("failed to open git repository: %w", err)
 	}
-	r.repo = repo
+	o.repo = repo
 	return nil
 }
 
 // IsGitRepository checks if the content path is already a git repository
-func (r *Repository) IsGitRepository() bool {
-	gitDir := filepath.Join(r.contentPath, ".git")
+func (o *Operations) IsGitRepository() bool {
+	gitDir := filepath.Join(o.contentPath, ".git")
 	info, err := os.Stat(gitDir)
 	return err == nil && info.IsDir()
 }
 
 // AddRemote adds a remote to the repository
-func (r *Repository) AddRemote(name, url string) error {
-	if r.repo == nil {
+func (o *Operations) AddRemote(name, url string) error {
+	if o.repo == nil {
 		return fmt.Errorf("repository not initialized")
 	}
 
-	_, err := r.repo.CreateRemote(&config.RemoteConfig{
+	_, err := o.repo.CreateRemote(&config.RemoteConfig{
 		Name: name,
 		URLs: []string{url},
 	})
@@ -73,14 +74,14 @@ func (r *Repository) AddRemote(name, url string) error {
 }
 
 // GetChangedFiles returns a list of files that have been modified, added, or deleted
-func (r *Repository) GetChangedFiles() ([]string, error) {
-	if r.repo == nil {
-		if err := r.OpenRepository(); err != nil {
+func (o *Operations) GetChangedFiles() ([]string, error) {
+	if o.repo == nil {
+		if err := o.OpenRepository(); err != nil {
 			return nil, err
 		}
 	}
 
-	worktree, err := r.repo.Worktree()
+	worktree, err := o.repo.Worktree()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get worktree: %w", err)
 	}
@@ -101,8 +102,8 @@ func (r *Repository) GetChangedFiles() ([]string, error) {
 }
 
 // HasChanges checks if there are uncommitted changes
-func (r *Repository) HasChanges() (bool, error) {
-	files, err := r.GetChangedFiles()
+func (o *Operations) HasChanges() (bool, error) {
+	files, err := o.GetChangedFiles()
 	if err != nil {
 		return false, err
 	}
@@ -110,14 +111,14 @@ func (r *Repository) HasChanges() (bool, error) {
 }
 
 // StageAll stages all changes in the repository
-func (r *Repository) StageAll() error {
-	if r.repo == nil {
-		if err := r.OpenRepository(); err != nil {
+func (o *Operations) StageAll() error {
+	if o.repo == nil {
+		if err := o.OpenRepository(); err != nil {
 			return err
 		}
 	}
 
-	worktree, err := r.repo.Worktree()
+	worktree, err := o.repo.Worktree()
 	if err != nil {
 		return fmt.Errorf("failed to get worktree: %w", err)
 	}
@@ -133,14 +134,14 @@ func (r *Repository) StageAll() error {
 }
 
 // Commit creates a commit with the given message
-func (r *Repository) Commit(message string) error {
-	if r.repo == nil {
-		if err := r.OpenRepository(); err != nil {
+func (o *Operations) Commit(message string) error {
+	if o.repo == nil {
+		if err := o.OpenRepository(); err != nil {
 			return err
 		}
 	}
 
-	worktree, err := r.repo.Worktree()
+	worktree, err := o.repo.Worktree()
 	if err != nil {
 		return fmt.Errorf("failed to get worktree: %w", err)
 	}
@@ -149,6 +150,7 @@ func (r *Repository) Commit(message string) error {
 		Author: &object.Signature{
 			Name:  "CodeX",
 			Email: "codex@local",
+			When:  time.Now(),
 		},
 	})
 	if err != nil {
@@ -159,41 +161,39 @@ func (r *Repository) Commit(message string) error {
 }
 
 // CommitWithBranch creates a commit on a specific branch (useful for initial commit)
-func (r *Repository) CommitWithBranch(message, branchName string) error {
-	if r.repo == nil {
-		if err := r.OpenRepository(); err != nil {
+func (o *Operations) CommitWithBranch(message, branchName string) error {
+	if o.repo == nil {
+		if err := o.OpenRepository(); err != nil {
 			return err
 		}
 	}
 
-	worktree, err := r.repo.Worktree()
+	worktree, err := o.repo.Worktree()
 	if err != nil {
 		return fmt.Errorf("failed to get worktree: %w", err)
 	}
 
-	// Create commit
 	hash, err := worktree.Commit(message, &git.CommitOptions{
 		Author: &object.Signature{
 			Name:  "CodeX",
 			Email: "codex@local",
+			When:  time.Now(),
 		},
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create commit: %w", err)
 	}
 
-	// Set the branch reference to point to this commit
 	branchRef := plumbing.NewBranchReferenceName(branchName)
 	ref := plumbing.NewHashReference(branchRef, hash)
 
-	err = r.repo.Storer.SetReference(ref)
+	err = o.repo.Storer.SetReference(ref)
 	if err != nil {
 		return fmt.Errorf("failed to set branch reference: %w", err)
 	}
 
-	// Update HEAD to point to the new branch
 	headRef := plumbing.NewSymbolicReference(plumbing.HEAD, branchRef)
-	err = r.repo.Storer.SetReference(headRef)
+	err = o.repo.Storer.SetReference(headRef)
 	if err != nil {
 		return fmt.Errorf("failed to set HEAD: %w", err)
 	}
@@ -201,15 +201,15 @@ func (r *Repository) CommitWithBranch(message, branchName string) error {
 	return nil
 }
 
-// Push pushes commits to the remote repository with force
-func (r *Repository) Push(pat, branch string) error {
-	if r.repo == nil {
-		if err := r.OpenRepository(); err != nil {
+// Push pushes commits to the remote repository push --force
+func (o *Operations) Push(pat, branch string) error {
+	if o.repo == nil {
+		if err := o.OpenRepository(); err != nil {
 			return err
 		}
 	}
 
-	err := r.repo.Push(&git.PushOptions{
+	err := o.repo.Push(&git.PushOptions{
 		RemoteName: "origin",
 		RefSpecs: []config.RefSpec{
 			config.RefSpec(fmt.Sprintf("+refs/heads/%s:refs/heads/%s", branch, branch)),
@@ -228,9 +228,8 @@ func (r *Repository) Push(pat, branch string) error {
 	return nil
 }
 
-
 // CreateGitHubRepository creates a new repository on GitHub
-func (r *Repository) CreateGitHubRepository(ctx context.Context, pat, repoURL string) error {
+func (o *Operations) CreateGitHubRepository(ctx context.Context, pat, repoURL string) error {
 	// Parse owner and repo from URL (format: "owner/repo")
 	parts := strings.Split(repoURL, "/")
 	if len(parts) != 2 {
@@ -284,18 +283,16 @@ func (r *Repository) CreateGitHubRepository(ctx context.Context, pat, repoURL st
 }
 
 // TestGitHubConnection tests if the PAT and repository URL are valid
-func (r *Repository) TestGitHubConnection(ctx context.Context, pat, repoURL string) error {
+func (o *Operations) TestGitHubConnection(ctx context.Context, pat, repoURL string) error {
 	parts := strings.Split(repoURL, "/")
 	if len(parts) != 2 {
 		return fmt.Errorf("invalid repository URL format, expected 'owner/repo'")
 	}
 
-	// Create GitHub client
 	ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: pat})
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-	// Test authentication by getting user info
 	_, _, err := client.Users.Get(ctx, "")
 	if err != nil {
 		return fmt.Errorf("authentication failed: %w", err)

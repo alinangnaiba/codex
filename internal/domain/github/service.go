@@ -20,7 +20,7 @@ type Service struct {
 	sectionRepo  *database.SectionRepository
 	settingsRepo *database.SettingsRepository
 	contentPath  string
-	gitRepo      *Repository
+	gitOps       *Operations
 }
 
 // NewService creates a new GitHub service instance
@@ -35,37 +35,33 @@ func NewService(
 		sectionRepo:  sectionRepo,
 		settingsRepo: settingsRepo,
 		contentPath:  contentPath,
-		gitRepo:      NewRepository(contentPath),
+		gitOps:       NewOperations(contentPath),
 	}
 }
 
 // TestConnection validates GitHub credentials and repository access
 func (s *Service) TestConnection(ctx context.Context, pat, repoURL string) error {
-	return s.gitRepo.TestGitHubConnection(ctx, pat, repoURL)
+	return s.gitOps.TestGitHubConnection(ctx, pat, repoURL)
 }
 
 // Initialize sets up GitHub integration by initializing Git and creating the repository
 func (s *Service) Initialize(ctx context.Context, pat, repoURL, branch string) error {
-	// Create or verify GitHub repository exists
-	if err := s.gitRepo.CreateGitHubRepository(ctx, pat, repoURL); err != nil {
+	if err := s.gitOps.CreateGitHubRepository(ctx, pat, repoURL); err != nil {
 		return fmt.Errorf("failed to create GitHub repository: %w", err)
 	}
 
-	// Initialize Git repository if not already initialized
-	if !s.gitRepo.IsGitRepository() {
-		if err := s.gitRepo.InitializeGit(); err != nil {
+	if !s.gitOps.IsGitRepository() {
+		if err := s.gitOps.InitializeGit(); err != nil {
 			return fmt.Errorf("failed to initialize git: %w", err)
 		}
 	} else {
-		if err := s.gitRepo.OpenRepository(); err != nil {
+		if err := s.gitOps.OpenRepository(); err != nil {
 			return fmt.Errorf("failed to open repository: %w", err)
 		}
 	}
 
-	// Add remote origin
 	remoteURL := fmt.Sprintf("https://github.com/%s.git", repoURL)
-	if err := s.gitRepo.AddRemote("origin", remoteURL); err != nil {
-		// Ignore error if remote already exists
+	if err := s.gitOps.AddRemote("origin", remoteURL); err != nil {
 		if err.Error() != "failed to add remote: remote already exists" {
 			return fmt.Errorf("failed to add remote: %w", err)
 		}
@@ -84,25 +80,19 @@ func (s *Service) Initialize(ctx context.Context, pat, repoURL, branch string) e
 		return fmt.Errorf("failed to generate .gitignore: %w", err)
 	}
 
-	// Stage all files
-	if err := s.gitRepo.StageAll(); err != nil {
+	if err := s.gitOps.StageAll(); err != nil {
 		return fmt.Errorf("failed to stage files: %w", err)
 	}
 
-	// Create initial commit with specified branch
 	commitMsg := fmt.Sprintf("Initial backup from CodeX - %s", time.Now().Format("2006-01-02 15:04:05"))
-	if err := s.gitRepo.CommitWithBranch(commitMsg, branch); err != nil {
+	if err := s.gitOps.CommitWithBranch(commitMsg, branch); err != nil {
 		return fmt.Errorf("failed to create initial commit: %w", err)
 	}
 
-	// Push to remote
-	fmt.Println("Pushing to remote...")
-	if err := s.gitRepo.Push(pat, branch); err != nil {
+	if err := s.gitOps.Push(pat, branch); err != nil {
 		return fmt.Errorf("failed to push to remote: %w", err)
 	}
-	fmt.Println("Push successful")
 
-	// Save settings
 	settings := map[string]string{
 		"githubEnabled":      "true",
 		"githubPAT":          pat,
@@ -112,43 +102,31 @@ func (s *Service) Initialize(ctx context.Context, pat, repoURL, branch string) e
 		"githubLastSyncTime": time.Now().Format(time.RFC3339),
 	}
 
-	fmt.Printf("About to save GitHub settings: %v\n", settings)
 	if err := s.settingsRepo.SetBatch(settings); err != nil {
-		fmt.Printf("ERROR saving settings: %v\n", err)
 		return fmt.Errorf("failed to save GitHub settings: %w", err)
 	}
-	fmt.Println("GitHub settings saved successfully")
-
-	// Verify settings were saved
-	testRead, err := s.settingsRepo.Get("githubInitialized")
-	fmt.Printf("Verification read: githubInitialized='%s', err=%v\n", testRead, err)
 
 	return nil
 }
 
 // GetStatus returns the current synchronization status
 func (s *Service) GetStatus() (*dto.GitHubStatusResponse, error) {
-	// Check if GitHub is initialized
 	initialized, err := s.settingsRepo.Get("githubInitialized")
-	fmt.Printf("GetStatus: githubInitialized='%s', err=%v\n", initialized, err)
 	if err != nil || initialized != "true" {
 		return &dto.GitHubStatusResponse{
 			Initialized: false,
 		}, nil
 	}
 
-	// Get settings
 	repoURL, _ := s.settingsRepo.Get("githubRepoURL")
 	branch, _ := s.settingsRepo.Get("githubBranch")
 	lastSyncTime, _ := s.settingsRepo.Get("githubLastSyncTime")
 
-	// Open repository
-	if err := s.gitRepo.OpenRepository(); err != nil {
+	if err := s.gitOps.OpenRepository(); err != nil {
 		return nil, fmt.Errorf("failed to open repository: %w", err)
 	}
 
-	// Get changed files
-	changedFiles, err := s.gitRepo.GetChangedFiles()
+	changedFiles, err := s.gitOps.GetChangedFiles()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get changed files: %w", err)
 	}
@@ -167,7 +145,6 @@ func (s *Service) GetStatus() (*dto.GitHubStatusResponse, error) {
 
 // Sync synchronizes local content to GitHub
 func (s *Service) Sync(ctx context.Context, commitMessage string) error {
-	// Get GitHub settings
 	pat, err := s.settingsRepo.Get("githubPAT")
 	if err != nil {
 		return fmt.Errorf("GitHub PAT not configured: %w", err)
@@ -178,12 +155,10 @@ func (s *Service) Sync(ctx context.Context, commitMessage string) error {
 		branch = "main"
 	}
 
-	// Open repository
-	if err := s.gitRepo.OpenRepository(); err != nil {
+	if err := s.gitOps.OpenRepository(); err != nil {
 		return fmt.Errorf("failed to open repository: %w", err)
 	}
 
-	// Regenerate structure files
 	if err := s.GenerateStructureJSON(); err != nil {
 		return fmt.Errorf("failed to generate structure.json: %w", err)
 	}
@@ -192,8 +167,7 @@ func (s *Service) Sync(ctx context.Context, commitMessage string) error {
 		return fmt.Errorf("failed to generate README.md: %w", err)
 	}
 
-	// Check for changes
-	hasChanges, err := s.gitRepo.HasChanges()
+	hasChanges, err := s.gitOps.HasChanges()
 	if err != nil {
 		return fmt.Errorf("failed to check for changes: %w", err)
 	}
@@ -202,23 +176,19 @@ func (s *Service) Sync(ctx context.Context, commitMessage string) error {
 		return fmt.Errorf("no changes to sync")
 	}
 
-	// Stage all changes
-	if err := s.gitRepo.StageAll(); err != nil {
+	if err := s.gitOps.StageAll(); err != nil {
 		return fmt.Errorf("failed to stage changes: %w", err)
 	}
 
-	// Create commit
 	fullCommitMsg := fmt.Sprintf("%s - %s", commitMessage, time.Now().Format("2006-01-02 15:04:05"))
-	if err := s.gitRepo.Commit(fullCommitMsg); err != nil {
+	if err := s.gitOps.Commit(fullCommitMsg); err != nil {
 		return fmt.Errorf("failed to create commit: %w", err)
 	}
 
-	// Push to remote
-	if err := s.gitRepo.Push(pat, branch); err != nil {
+	if err := s.gitOps.Push(pat, branch); err != nil {
 		return fmt.Errorf("failed to push to remote: %w", err)
 	}
 
-	// Update last sync time
 	if err := s.settingsRepo.Set("githubLastSyncTime", time.Now().Format(time.RFC3339)); err != nil {
 		return fmt.Errorf("failed to update last sync time: %w", err)
 	}
@@ -229,11 +199,11 @@ func (s *Service) Sync(ctx context.Context, commitMessage string) error {
 // Disconnect removes GitHub integration settings
 func (s *Service) Disconnect() error {
 	settings := map[string]string{
-		"githubEnabled":     "false",
-		"githubPAT":         "",
-		"githubRepoURL":     "",
-		"githubBranch":      "",
-		"githubInitialized": "false",
+		"githubEnabled":      "false",
+		"githubPAT":          "",
+		"githubRepoURL":      "",
+		"githubBranch":       "",
+		"githubInitialized":  "false",
 		"githubLastSyncTime": "",
 	}
 
@@ -263,7 +233,6 @@ func (s *Service) GenerateStructureJSON() error {
 			continue
 		}
 
-		// Convert sections to structure format
 		sectionStructures := make([]models.SectionStructure, len(sections))
 		for i, section := range sections {
 			sectionStructures[i] = models.SectionStructure{
@@ -291,7 +260,6 @@ func (s *Service) GenerateStructureJSON() error {
 		structure.Codexes = append(structure.Codexes, codexStruct)
 	}
 
-	// Sort codexes by ID for consistent output
 	sort.Slice(structure.Codexes, func(i, j int) bool {
 		return structure.Codexes[i].ID < structure.Codexes[j].ID
 	})
