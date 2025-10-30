@@ -17,10 +17,11 @@ import {
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { HelpDialog } from '../components/HelpDialog';
 import { EditorToolbar } from '../components/EditorToolbar';
+import { TableEditor } from '../components/TableEditor';
+import { EnhancedMarkdownRenderer } from '../components/EnhancedMarkdownRenderer';
 import { sectionAPI, codexAPI, fileAPI, settingsAPI } from '../utils/api';
 import { useBreadcrumb } from '../contexts/BreadcrumbContext';
 import { useTheme } from '../contexts/ThemeContext';
-import md from '../utils/markdown';
 import toast from 'react-hot-toast';
 import { useOpenExternalLinkHandlers } from '../utils/linkHandlers';
 import {
@@ -56,6 +57,7 @@ export const SectionEditor: React.FC = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const [editorView, setEditorView] = useState<EditorView | null>(null);
   const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 });
+  const [showTableEditor, setShowTableEditor] = useState(false);
 
   const latestContentRef = useRef(content);
   const latestOriginalContentRef = useRef(originalContent);
@@ -238,6 +240,10 @@ export const SectionEditor: React.FC = () => {
     [editorView]
   );
 
+  const handleTableSave = useCallback((markdown: string) => {
+    insertMarkdown('\n' + markdown + '\n');
+  }, [insertMarkdown]);
+
   const updateCursorPosition = useCallback((view: EditorView) => {
     const currentHead = view.state.selection.main.head;
     const line = view.state.doc.lineAt(currentHead);
@@ -410,6 +416,7 @@ export const SectionEditor: React.FC = () => {
         wordWrapEnabled={wordWrapEnabled}
         setWordWrapEnabled={setWordWrapEnabled}
         setShowHelp={setShowHelp}
+        onTableEditor={() => setShowTableEditor(true)}
       />
 
       {/* Editor and preview */}
@@ -475,9 +482,9 @@ export const SectionEditor: React.FC = () => {
               aria-label="Markdown preview"
             >
               {content ? (
-                <div
+                <EnhancedMarkdownRenderer
+                  content={content}
                   className="prose prose-lg dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: md.render(content) }}
                 />
               ) : (
                 <div className="text-gray-400 dark:text-gray-600">
@@ -492,6 +499,13 @@ export const SectionEditor: React.FC = () => {
 
       {/* Help Dialog */}
       <HelpDialog isOpen={showHelp} onClose={() => setShowHelp(false)} />
+
+      {/* Table Editor */}
+      <TableEditor
+        isOpen={showTableEditor}
+        onClose={() => setShowTableEditor(false)}
+        onSave={handleTableSave}
+      />
     </div>
   );
 };

@@ -24,6 +24,9 @@ import {
   TextStrikethroughIcon,
   TextSubscriptIcon,
   TextSuperscriptIcon,
+  TableIcon,
+  MathOperationsIcon,
+  TreeStructureIcon,
 } from '@phosphor-icons/react';
 
 interface EditorToolbarProps {
@@ -31,6 +34,7 @@ interface EditorToolbarProps {
   wordWrapEnabled: boolean;
   setWordWrapEnabled: (enabled: boolean) => void;
   setShowHelp: (show: boolean) => void;
+  onTableEditor: () => void;
 }
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({
@@ -38,6 +42,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
   wordWrapEnabled,
   setWordWrapEnabled,
   setShowHelp,
+  onTableEditor,
 }) => {
   return (
     <div className="border-b border-gray-200 dark:border-gray-700 px-4 py-2 flex items-center justify-between">
@@ -283,6 +288,53 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({
           title="Definition List (Ctrl+Shift+D)"
         >
           <BookOpenTextIcon
+            size={18}
+            weight="regular"
+            className="text-gray-600 dark:text-gray-400"
+          />
+        </button>
+
+        {/* Advanced Features */}
+        <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+        <button
+          onClick={onTableEditor}
+          className="p-2 rounded-md hover-bg"
+          title="Insert Table (Ctrl+Shift+T)"
+        >
+          <TableIcon
+            size={18}
+            weight="regular"
+            className="text-gray-600 dark:text-gray-400"
+          />
+        </button>
+        <button
+          onClick={() => insertMarkdown('\n$$\n', '\n$$\n')}
+          className="p-2 rounded-md hover-bg"
+          title="LaTeX Math Block (Ctrl+Shift+M)"
+        >
+          <MathOperationsIcon
+            size={18}
+            weight="regular"
+            className="text-gray-600 dark:text-gray-400"
+          />
+        </button>
+        <button
+          onClick={() => insertMarkdown('$', '$')}
+          className="p-2 rounded-md hover-bg"
+          title="Inline LaTeX Math (Ctrl+M)"
+        >
+          <MathOperationsIcon
+            size={16}
+            weight="regular"
+            className="text-gray-600 dark:text-gray-400"
+          />
+        </button>
+        <button
+          onClick={() => insertMarkdown('\n```mermaid\ngraph TD\n    A[Start] --> B[End]\n', '\n```\n')}
+          className="p-2 rounded-md hover-bg"
+          title="Mermaid Diagram (Ctrl+Shift+G)"
+        >
+          <TreeStructureIcon
             size={18}
             weight="regular"
             className="text-gray-600 dark:text-gray-400"

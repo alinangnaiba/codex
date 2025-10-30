@@ -9,6 +9,7 @@
     ],
     "allowJs": false,
     "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -22,6 +23,10 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "node_modules/@types/d3-*",
+    "node_modules/**/d3-*"
   ],
   "references": [
     {

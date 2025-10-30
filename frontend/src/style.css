@@ -413,6 +413,55 @@
     font-weight: 500;
   }
 
+  /* LaTeX rendering styles */
+  .latex-renderer {
+    display: inline-block;
+  }
+
+  .latex-inline {
+    display: inline;
+    margin: 0 0.2em;
+  }
+
+  .latex-block {
+    display: block;
+    margin: 1.5rem 0;
+    text-align: center;
+    overflow-x: auto;
+  }
+
+  .prose .katex-block {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    overflow-x: auto;
+  }
+
+  .prose .katex {
+    font-size: 1.1em;
+  }
+
+  .prose .katex-display {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  /* Mermaid diagram styles */
+  .mermaid-diagram {
+    margin: 1.5rem 0;
+  }
+
+  .prose .mermaid-diagram svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .prose .mermaid-error,
+  .prose .katex-error {
+    font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+    font-size: 0.875rem;
+  }
+
   .hljs-string,
   .hljs-title {
     color: #059669;

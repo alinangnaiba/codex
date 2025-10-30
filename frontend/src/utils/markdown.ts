@@ -14,6 +14,7 @@ import markdownItMark from 'markdown-it-mark';
 import markdownItDeflist from 'markdown-it-deflist';
 // @ts-expect-error - Uses named export, not default
 import { full as markdownItEmoji } from 'markdown-it-emoji';
+import { markdownItKatex, markdownItMermaid } from './markdownPlugins';
 
 // Import common languages for syntax highlighting
 import javascript from 'highlight.js/lib/languages/javascript';
@@ -42,6 +43,7 @@ import css from 'highlight.js/lib/languages/css';
 import scss from 'highlight.js/lib/languages/scss';
 import makefile from 'highlight.js/lib/languages/makefile';
 import dockerfile from 'highlight.js/lib/languages/dockerfile';
+import latex from 'highlight.js/lib/languages/latex';
 
 // Register languages with highlight.js
 hljs.registerLanguage('javascript', javascript);
@@ -86,6 +88,8 @@ hljs.registerLanguage('sass', scss);
 hljs.registerLanguage('makefile', makefile);
 hljs.registerLanguage('make', makefile);
 hljs.registerLanguage('dockerfile', dockerfile);
+hljs.registerLanguage('latex', latex);
+hljs.registerLanguage('tex', latex);
 
 // Configure markdown-it with all features enabled
 export const md: MarkdownIt = new MarkdownIt({
@@ -142,6 +146,8 @@ export const md: MarkdownIt = new MarkdownIt({
         make: 'Makefile',
         makefile: 'Makefile',
         dockerfile: 'Dockerfile',
+        latex: 'LaTeX',
+        tex: 'TeX',
       };
       return languageNames[langCode.toLowerCase()] || langCode.toUpperCase();
     };
@@ -166,7 +172,9 @@ export const md: MarkdownIt = new MarkdownIt({
   .use(markdownItTaskLists, { enabled: true })
   .use(markdownItMark)
   .use(markdownItDeflist)
-  .use(markdownItEmoji);
+  .use(markdownItEmoji)
+  .use(markdownItKatex)
+  .use(markdownItMermaid);
 
 md.enable([
   'table',

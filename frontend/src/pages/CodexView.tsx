@@ -15,9 +15,10 @@ import toast from 'react-hot-toast';
 import { useOpenExternalLinkHandlers } from '../utils/linkHandlers';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { ConfirmModal } from '../components/ConfirmModal';
+import { EnhancedMarkdownRenderer } from '../components/EnhancedMarkdownRenderer';
 import { codexAPI, sectionAPI, CodexWithSections, Section } from '../utils/api';
 import { useBreadcrumb } from '../contexts/BreadcrumbContext';
-import md, {
+import {
   extractHeadings,
   HeadingInfo,
   NestedHeading,
@@ -577,7 +578,7 @@ export const CodexView: React.FC = () => {
               </div>
 
               {/* Content */}
-              <div 
+              <div
                 className="p-6"
                 onClick={handleContentClick}
                 onKeyDown={handleContentKeyDown}
@@ -587,12 +588,9 @@ export const CodexView: React.FC = () => {
                 {isLoadingContent ? (
                   <LoadingSpinner size="md" />
                 ) : sectionContent ? (
-                  <div
-                    className="prose prose-lg dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html: md.render(sectionContent),
-                    }}
-                  />
+                  <div className="prose prose-lg dark:prose-invert max-w-none">
+                    <EnhancedMarkdownRenderer content={sectionContent} />
+                  </div>
                 ) : (
                   <div className="text-gray-500 dark:text-gray-400 text-center py-12">
                     <FileIcon
