@@ -5,6 +5,10 @@ import {
   MagnifyingGlassIcon,
   BooksIcon,
   PushPinIcon,
+  CloudArrowUpIcon,
+  CheckCircleIcon,
+  WarningCircleIcon,
+  GithubLogoIcon,
 } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import { CodexCard } from '../components/CodexCard';
@@ -12,7 +16,7 @@ import { CodexCarousel } from '../components/CodexCarousel';
 import { CreateCodexDialog } from '../components/CreateCodexDialog';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { LoadingSpinner } from '../components/LoadingSpinner';
-import { codexAPI, Codex, CodexProgress } from '../utils/api';
+import { codexAPI, Codex, CodexProgress, githubAPI, GitHubStatus } from '../utils/api';
 
 export const CodexLibrary: React.FC = () => {
   const navigate = useNavigate();
@@ -26,8 +30,15 @@ export const CodexLibrary: React.FC = () => {
   const [editingCodex, setEditingCodex] = useState<Codex | null>(null);
   const [deletingCodex, setDeletingCodex] = useState<Codex | null>(null);
 
+  // GitHub sync state
+  const [githubStatus, setGithubStatus] = useState<GitHubStatus | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [commitMessage, setCommitMessage] = useState('');
+
   useEffect(() => {
     loadCodexes();
+    loadGitHubStatus();
   }, []);
 
   const loadCodexes = async () => {
@@ -130,6 +141,42 @@ export const CodexLibrary: React.FC = () => {
     navigate(`/codex/${codex.id}`);
   };
 
+  const loadGitHubStatus = async () => {
+    try {
+      const status = await githubAPI.getStatus();
+      setGithubStatus(status);
+    } catch (error) {
+      console.error('Failed to load GitHub status:', error);
+    }
+  };
+
+  const handleSyncToGitHub = async () => {
+    if (!commitMessage.trim()) {
+      toast.error('Please enter a commit message');
+      return;
+    }
+
+    setIsSyncing(true);
+    try {
+      await githubAPI.sync(commitMessage);
+      toast.success('Successfully synced to GitHub!');
+      setShowSyncModal(false);
+      setCommitMessage('');
+      await loadGitHubStatus();
+    } catch (error) {
+      console.error('Failed to sync to GitHub:', error);
+      toast.error(`Failed to sync: ${error}`);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const openSyncModal = () => {
+    const defaultMessage = `Update from CodeX - ${new Date().toLocaleString()}`;
+    setCommitMessage(defaultMessage);
+    setShowSyncModal(true);
+  };
+
   // Separate pinned and unpinned codexes
   const { pinnedCodexes, unpinnedCodexes } = useMemo(() => {
     const pinned = codexes.filter(c => c.isPinned);
@@ -191,6 +238,53 @@ export const CodexLibrary: React.FC = () => {
           />
         </div>
       </header>
+
+      {/* GitHub Sync Status Bar */}
+      {githubStatus?.initialized && (
+        <div
+          className="border-b px-6 py-3"
+          style={{
+            backgroundColor: 'var(--color-card)',
+            borderColor: 'var(--color-border)',
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <GithubLogoIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <div className="flex items-center gap-2">
+                {githubStatus.hasChanges ? (
+                  <>
+                    <WarningCircleIcon className="w-5 h-5 text-orange-500" />
+                    <span className="text-sm font-medium">
+                      {githubStatus.changedFiles.length} file{githubStatus.changedFiles.length !== 1 ? 's' : ''} changed
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircleIcon className="w-5 h-5 text-green-500" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Up to date
+                    </span>
+                  </>
+                )}
+              </div>
+              {githubStatus.lastSyncTime && (
+                <span className="text-xs text-gray-500 dark:text-gray-500">
+                  Last synced: {new Date(githubStatus.lastSyncTime).toLocaleString()}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={openSyncModal}
+              disabled={!githubStatus.hasChanges || isSyncing}
+              className="btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <CloudArrowUpIcon className="w-4 h-4" />
+              {isSyncing ? 'Syncing...' : 'Backup to GitHub'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto scrollbar-thin p-6">
@@ -280,6 +374,62 @@ export const CodexLibrary: React.FC = () => {
           cancelText="Cancel"
           type="danger"
         />
+      )}
+
+      {/* GitHub Sync Modal */}
+      {showSyncModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div
+            className="rounded-lg p-6 max-w-md w-full mx-4"
+            style={{
+              backgroundColor: 'var(--color-bg)',
+              border: '1px solid var(--color-border)',
+            }}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <GithubLogoIcon className="w-6 h-6" />
+              <h2 className="text-xl font-semibold">Backup to GitHub</h2>
+            </div>
+
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Enter a commit message for this backup
+            </p>
+
+            <input
+              type="text"
+              value={commitMessage}
+              onChange={e => setCommitMessage(e.target.value)}
+              className="input w-full mb-4"
+              placeholder="Update from CodeX"
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  handleSyncToGitHub();
+                }
+              }}
+            />
+
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => {
+                  setShowSyncModal(false);
+                  setCommitMessage('');
+                }}
+                disabled={isSyncing}
+                className="btn-secondary disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSyncToGitHub}
+                disabled={isSyncing || !commitMessage.trim()}
+                className="btn-primary flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <CloudArrowUpIcon className="w-4 h-4" />
+                {isSyncing ? 'Syncing...' : 'Sync Now'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

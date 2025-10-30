@@ -108,6 +108,28 @@ export namespace dto {
 		    return a;
 		}
 	}
+	export class GitHubStatusResponse {
+	    initialized: boolean;
+	    hasChanges: boolean;
+	    changedFiles: string[];
+	    lastSyncTime: string;
+	    remoteURL: string;
+	    branch: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new GitHubStatusResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.initialized = source["initialized"];
+	        this.hasChanges = source["hasChanges"];
+	        this.changedFiles = source["changedFiles"];
+	        this.lastSyncTime = source["lastSyncTime"];
+	        this.remoteURL = source["remoteURL"];
+	        this.branch = source["branch"];
+	    }
+	}
 
 }
 

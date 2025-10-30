@@ -42,6 +42,15 @@ export interface Settings {
   [key: string]: string;
 }
 
+export interface GitHubStatus {
+  initialized: boolean;
+  hasChanges: boolean;
+  changedFiles: string[];
+  lastSyncTime: string;
+  remoteURL: string;
+  branch: string;
+}
+
 // Codex API
 export const codexAPI = {
   getAll: () => App.GetAllCodexes(),
@@ -88,4 +97,15 @@ export const fileAPI = {
 // Window operations
 export const windowAPI = {
   saveCurrentSize: () => App.SaveCurrentWindowSize(),
+};
+
+// GitHub Integration API
+export const githubAPI = {
+  testConnection: (pat: string, repoURL: string) =>
+    App.TestGitHubConnection(pat, repoURL),
+  initialize: (pat: string, repoURL: string, branch: string) =>
+    App.InitializeGitHub(pat, repoURL, branch),
+  getStatus: (): Promise<GitHubStatus> => App.GetGitHubStatus(),
+  sync: (commitMessage: string) => App.SyncToGitHub(commitMessage),
+  disconnect: () => App.DisconnectGitHub(),
 };

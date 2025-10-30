@@ -14,6 +14,7 @@ CodeX is a modern desktop application that helps you organize and manage your kn
 - **💾 Local Storage** — All your data stays on your machine with SQLite backend
 - **🖥️ Native Desktop** — Cross-platform desktop app powered by Wails
 - **🔍 Quick Navigation** — Jump between sections and headings effortlessly
+- **🔄 GitHub Backup** — Optional backup to GitHub with manual sync control
 
 ## 🎯 Perfect For
 
@@ -27,7 +28,8 @@ CodeX is a modern desktop application that helps you organize and manage your kn
 - **Frontend:** React + TypeScript, Vite
 - **Editor:** CodeMirror 6
 - **Backend:** Go with Wails framework
-- **Storage:** SQLite database
+- **Storage:** SQLite database + file-based markdown storage
+- **GitHub Integration:** go-git (Git operations), go-github (GitHub API)
 - **Styling:** CSS modules with responsive design
 - **Development:** ESLint + Prettier for code quality
 
@@ -76,6 +78,93 @@ wails build
 The built application and installer will be available in the `build/bin/` directory.
 
 > 💡 For advanced build options and platform-specific configurations, see the [Wails Build Documentation](https://wails.io/docs/reference/cli#build).
+
+## 🔄 GitHub Backup Integration
+
+CodeX includes optional GitHub backup functionality, allowing you to sync your codexes to a GitHub repository for backup and version control purposes.
+
+### Features
+
+- **Manual Sync Control** — Back up only when you choose
+- **Auto-generated Documentation** — Creates `README.md` with codex index and `structure.json` with metadata mapping
+- **Repository-Specific Access** — Use fine-grained tokens scoped to just your backup repository
+- **Local-First Approach** — Your local content is always the source of truth (force push)
+
+### Setup Instructions
+
+#### 1. Create a Fine-Grained Personal Access Token
+
+1. Go to [GitHub Personal Access Tokens](https://github.com/settings/personal-access-tokens/new)
+2. Click **"Generate new token"** → **"Generate new token (fine-grained)"**
+3. Configure your token:
+   - **Token name**: `CodeX Backup`
+   - **Expiration**: Choose your preference (or no expiration)
+   - **Repository access**: Select **"Only select repositories"**
+   - Choose the repository you want to use for backups (or create a new one)
+   - **Permissions** → **Repository permissions**:
+     - Set **Contents** to **Read and write**
+     - Set **Metadata** to **Read-only** (automatically selected)
+4. Click **"Generate token"** and copy it immediately
+
+> ⚠️ **Security Note**: Fine-grained tokens are much safer than classic tokens. They can be scoped to a specific repository with minimal permissions. Never share your token or commit it to version control.
+
+#### 2. Configure GitHub Integration in CodeX
+
+1. Open **Settings** from the CodeX menu
+2. Scroll to the **GitHub Integration** section
+3. Enter your configuration:
+   - **Repository URL**: Format `username/repository-name` (e.g., `johndoe/codex-backup`)
+   - **Personal Access Token**: Paste the token you created
+   - **Branch Name**: `main` (or your preferred branch name)
+4. Click **"Test Connection"** to verify your credentials
+5. Click **"Initialize Backup"** to set up the repository
+
+#### 3. Using GitHub Backup
+
+Once configured, you'll see a sync status bar at the top of your Library page:
+
+- **Up to date**: No changes to sync
+- **X files changed**: Shows how many files have been modified
+
+To back up your changes:
+
+1. Click **"Backup to GitHub"** in the Library page
+2. Enter a commit message describing your changes
+3. Click **"Sync Now"** to push to GitHub
+
+### What Gets Backed Up
+
+Your GitHub repository will contain:
+
+```
+your-backup-repo/
+├── .gitignore          # Excludes database and temp files
+├── README.md           # Auto-generated index of all codexes
+├── structure.json      # Metadata mapping (titles, IDs, timestamps)
+├── codex_1/
+│   ├── section_1.md
+│   ├── section_2.md
+│   └── section_3.md
+├── codex_2/
+│   └── section_4.md
+└── ...
+```
+
+### Important Notes
+
+- **Local is Source of Truth**: CodeX uses force push, meaning your local content will always overwrite remote changes
+- **Manual Sync Only**: Backups occur only when you click the "Backup to GitHub" button
+- **Metadata Regeneration**: `structure.json` and `README.md` are regenerated on every sync to stay current
+- **Repository Creation**: If the specified repository doesn't exist, CodeX will create it automatically
+
+### Disconnecting GitHub
+
+To disconnect GitHub integration:
+
+1. Go to **Settings** → **GitHub Integration**
+2. Click **"Disconnect GitHub"**
+
+This removes the integration but doesn't delete your local files or the GitHub repository.
 
 ## 🧹 Code Quality
 
