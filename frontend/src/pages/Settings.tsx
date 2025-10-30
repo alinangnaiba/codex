@@ -6,10 +6,16 @@ import {
   SunIcon,
   MoonIcon,
   CheckIcon,
+  GithubLogoIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  CloudArrowUpIcon,
+  PlugIcon,
+  PlugsConnectedIcon,
 } from '@phosphor-icons/react';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { useTheme } from '../contexts/ThemeContext';
-import { settingsAPI, fileAPI } from '../utils/api';
+import { settingsAPI, fileAPI, githubAPI, GitHubStatus } from '../utils/api';
 import toast from 'react-hot-toast';
 
 export const Settings: React.FC = () => {
@@ -21,6 +27,15 @@ export const Settings: React.FC = () => {
   const [autoSave, setAutoSave] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [saveMessage, setSaveMessage] = useState('');
+
+  // GitHub integration state
+  const [githubRepoURL, setGithubRepoURL] = useState('');
+  const [githubPAT, setGithubPAT] = useState('');
+  const [githubBranch, setGithubBranch] = useState('main');
+  const [showPAT, setShowPAT] = useState(false);
+  const [githubStatus, setGithubStatus] = useState<GitHubStatus | null>(null);
+  const [isTestingConnection, setIsTestingConnection] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
 
   // Ref to track timeouts for cleanup
   const saveMessageTimeoutRef = useRef<number | null>(null);
@@ -53,6 +68,25 @@ export const Settings: React.FC = () => {
       // Set auto-save setting
       const autoSaveValue = settings.autoSave === 'true';
       setAutoSave(autoSaveValue);
+
+      // Load GitHub settings
+      if (settings.githubRepoURL) {
+        setGithubRepoURL(settings.githubRepoURL);
+      }
+      if (settings.githubPAT) {
+        setGithubPAT(settings.githubPAT);
+      }
+      if (settings.githubBranch) {
+        setGithubBranch(settings.githubBranch);
+      }
+
+      // Load GitHub status
+      try {
+        const status = await githubAPI.getStatus();
+        setGithubStatus(status);
+      } catch (error) {
+        console.error('Failed to load GitHub status:', error);
+      }
     } catch (error) {
       console.error('Failed to load settings:', error);
     } finally {
@@ -115,6 +149,62 @@ export const Settings: React.FC = () => {
     // Only auto-save if we have a valid path and not using default
     if (!useDefaultLocation && newPath.trim()) {
       autoSaveSettings({ contentPath: newPath.trim() });
+    }
+  };
+
+  const handleTestConnection = async () => {
+    if (!githubRepoURL || !githubPAT) {
+      toast.error('Please enter both repository URL and Personal Access Token');
+      return;
+    }
+
+    setIsTestingConnection(true);
+    try {
+      await githubAPI.testConnection(githubPAT, githubRepoURL);
+      toast.success('Connection successful! You can now initialize backup.');
+    } catch (error) {
+      console.error('Connection test failed:', error);
+      toast.error('Connection failed. Please check your credentials and try again.');
+    } finally {
+      setIsTestingConnection(false);
+    }
+  };
+
+  const handleInitializeGitHub = async () => {
+    if (!githubRepoURL || !githubPAT) {
+      toast.error('Please enter both repository URL and Personal Access Token');
+      return;
+    }
+
+    setIsInitializing(true);
+    try {
+      await githubAPI.initialize(githubPAT, githubRepoURL, githubBranch);
+      toast.success('GitHub backup initialized successfully!');
+
+      await loadSettings();
+    } catch (error) {
+      console.error('GitHub initialization failed:', error);
+      toast.error(`Failed to initialize GitHub backup: ${error}`);
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
+  const handleDisconnectGitHub = async () => {
+    if (!window.confirm('Are you sure you want to disconnect GitHub integration? Your local files will not be affected.')) {
+      return;
+    }
+
+    try {
+      await githubAPI.disconnect();
+      setGithubRepoURL('');
+      setGithubPAT('');
+      setGithubBranch('main');
+      setGithubStatus(null);
+      toast.success('GitHub integration disconnected');
+    } catch (error) {
+      console.error('Failed to disconnect GitHub:', error);
+      toast.error('Failed to disconnect GitHub integration');
     }
   };
 
@@ -371,6 +461,168 @@ export const Settings: React.FC = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* GitHub Integration Section */}
+        <div
+          className="mb-8 p-6 rounded-lg border"
+          style={{
+            backgroundColor: 'var(--color-card)',
+            borderColor: 'var(--color-border)',
+          }}
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <GithubLogoIcon className="w-6 h-6" />
+            <h2 className="text-xl font-semibold">GitHub Integration</h2>
+          </div>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
+            Backup your codexes to a GitHub repository
+          </p>
+
+          {githubStatus?.initialized ? (
+            <div className="space-y-4">
+              {/* Connection Status */}
+              <div
+                className="p-4 rounded-lg flex items-center gap-3"
+                style={{ backgroundColor: 'var(--color-accent-subtle)' }}
+              >
+                <PlugsConnectedIcon className="w-5 h-5 text-green-600" />
+                <div className="flex-1">
+                  <p className="font-medium text-sm">Connected to GitHub</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {githubStatus.remoteURL}
+                  </p>
+                  {githubStatus.lastSyncTime && (
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                      Last synced: {new Date(githubStatus.lastSyncTime).toLocaleString()}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Disconnect Button */}
+              <button
+                onClick={handleDisconnectGitHub}
+                className="btn-secondary w-full flex items-center justify-center gap-2"
+              >
+                <PlugIcon className="w-4 h-4" />
+                Disconnect GitHub
+              </button>
+
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Use the backup button in the Library to sync your changes to GitHub
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Repository URL */}
+              <div>
+                <label htmlFor="github-repo-url" className="block text-sm font-medium mb-2">
+                  Repository URL
+                </label>
+                <input
+                  id="github-repo-url"
+                  type="text"
+                  value={githubRepoURL}
+                  onChange={e => setGithubRepoURL(e.target.value)}
+                  className="input w-full"
+                  placeholder="username/repository-name"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Format: username/repository-name (e.g., johndoe/my-codex-backup)
+                </p>
+              </div>
+
+              {/* Personal Access Token */}
+              <div>
+                <label htmlFor="github-pat" className="block text-sm font-medium mb-2">
+                  Personal Access Token
+                </label>
+                <div className="relative">
+                  <input
+                    id="github-pat"
+                    type={showPAT ? 'text' : 'password'}
+                    value={githubPAT}
+                    onChange={e => setGithubPAT(e.target.value)}
+                    className="input w-full pr-10"
+                    placeholder="ghp_xxxxxxxxxxxx"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPAT(!showPAT)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover-bg rounded"
+                  >
+                    {showPAT ? (
+                      <EyeSlashIcon className="w-5 h-5" />
+                    ) : (
+                      <EyeIcon className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <a
+                    href="https://github.com/settings/personal-access-tokens/new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:underline"
+                  >
+                    Create a fine-grained token
+                  </a>{' '}
+                  with Contents: Read and Write permission
+                </p>
+              </div>
+
+              {/* Branch Name */}
+              <div>
+                <label htmlFor="github-branch" className="block text-sm font-medium mb-2">
+                  Branch Name
+                </label>
+                <input
+                  id="github-branch"
+                  type="text"
+                  value={githubBranch}
+                  onChange={e => setGithubBranch(e.target.value)}
+                  className="input w-full"
+                  placeholder="main"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Default: main
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={handleTestConnection}
+                  disabled={isTestingConnection || !githubRepoURL || !githubPAT}
+                  className="btn-secondary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isTestingConnection ? 'Testing...' : 'Test Connection'}
+                </button>
+                <button
+                  onClick={handleInitializeGitHub}
+                  disabled={isInitializing || !githubRepoURL || !githubPAT}
+                  className="btn-primary flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isInitializing ? (
+                    'Initializing...'
+                  ) : (
+                    <>
+                      <CloudArrowUpIcon className="w-4 h-4" />
+                      Initialize Backup
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+                <p className="text-sm text-blue-900 dark:text-blue-100">
+                  <strong>Note:</strong> If the repository doesn&apos;t exist, it will be created automatically.
+                  Your local files are the source of truth and will overwrite any remote changes.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* About Section */}

@@ -22,6 +22,10 @@ export function DeleteSection(arg1) {
   return window['go']['main']['App']['DeleteSection'](arg1);
 }
 
+export function DisconnectGitHub() {
+  return window['go']['main']['App']['DisconnectGitHub']();
+}
+
 export function GetAllCodexes() {
   return window['go']['main']['App']['GetAllCodexes']();
 }
@@ -36,6 +40,10 @@ export function GetCodexWithSections(arg1) {
 
 export function GetDefaultContentPath() {
   return window['go']['main']['App']['GetDefaultContentPath']();
+}
+
+export function GetGitHubStatus() {
+  return window['go']['main']['App']['GetGitHubStatus']();
 }
 
 export function GetSectionContent(arg1) {
@@ -56,6 +64,10 @@ export function GetSettings() {
 
 export function ImportMarkdownFile(arg1) {
   return window['go']['main']['App']['ImportMarkdownFile'](arg1);
+}
+
+export function InitializeGitHub(arg1, arg2, arg3) {
+  return window['go']['main']['App']['InitializeGitHub'](arg1, arg2, arg3);
 }
 
 export function PinCodex(arg1, arg2) {
@@ -88,6 +100,14 @@ export function SetSectionComplete(arg1, arg2) {
 
 export function SetSetting(arg1, arg2) {
   return window['go']['main']['App']['SetSetting'](arg1, arg2);
+}
+
+export function SyncToGitHub(arg1) {
+  return window['go']['main']['App']['SyncToGitHub'](arg1);
+}
+
+export function TestGitHubConnection(arg1, arg2) {
+  return window['go']['main']['App']['TestGitHubConnection'](arg1, arg2);
 }
 
 export function UpdateCodex(arg1, arg2, arg3) {

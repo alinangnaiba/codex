@@ -12,6 +12,7 @@ import (
 	"codex-wails/internal/database"
 	"codex-wails/internal/domain/codex"
 	"codex-wails/internal/domain/file"
+	"codex-wails/internal/domain/github"
 	"codex-wails/internal/domain/section"
 	"codex-wails/internal/domain/settings"
 	"codex-wails/internal/dto"
@@ -39,6 +40,7 @@ type App struct {
 	sectionHandler  *section.Handler
 	settingsHandler *settings.Handler
 	fileHandler     *file.Handler
+	githubHandler   *github.Handler
 }
 
 func NewApp() *App {
@@ -233,11 +235,13 @@ func (a *App) initializeServices() error {
 	sectionService := section.NewService(sectionDomainRepo, storageAdapter)
 	settingsService := settings.NewService(settingsDomainRepo, storageAdapter)
 	fileService := file.NewService(storageAdapter)
+	githubService := github.NewService(codexRepo, sectionRepo, settingsRepo, contentPath)
 
 	a.codexHandler = codex.NewHandler(codexService)
 	a.sectionHandler = section.NewHandler(sectionService)
 	a.settingsHandler = settings.NewHandler(settingsService, a.updateStorageService)
 	a.fileHandler = file.NewHandler(fileService, a.ctx)
+	a.githubHandler = github.NewHandler(githubService, a.ctx)
 	runtime.LogInfo(a.ctx, "Domain handlers initialized")
 
 	return nil
@@ -420,4 +424,31 @@ func (a *App) GetDefaultContentPath() (string, error) {
 
 	defaultPath := filepath.Join(homeDir, ".codex", "content")
 	return defaultPath, nil
+}
+
+// --- GitHub Integration API Functions ---
+
+// TestGitHubConnection validates GitHub credentials and repository access
+func (a *App) TestGitHubConnection(pat, repoURL string) error {
+	return a.githubHandler.TestConnection(pat, repoURL)
+}
+
+// InitializeGitHub sets up GitHub integration
+func (a *App) InitializeGitHub(pat, repoURL, branch string) error {
+	return a.githubHandler.Initialize(pat, repoURL, branch)
+}
+
+// GetGitHubStatus returns the current synchronization status
+func (a *App) GetGitHubStatus() (*dto.GitHubStatusResponse, error) {
+	return a.githubHandler.GetStatus()
+}
+
+// SyncToGitHub synchronizes local content to GitHub
+func (a *App) SyncToGitHub(commitMessage string) error {
+	return a.githubHandler.Sync(commitMessage)
+}
+
+// DisconnectGitHub removes GitHub integration settings
+func (a *App) DisconnectGitHub() error {
+	return a.githubHandler.Disconnect()
 }

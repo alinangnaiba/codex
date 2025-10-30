@@ -12,6 +12,8 @@ export function DeleteCodex(arg1:number):Promise<void>;
 
 export function DeleteSection(arg1:number):Promise<void>;
 
+export function DisconnectGitHub():Promise<void>;
+
 export function GetAllCodexes():Promise<Array<dto.CodexResponse>>;
 
 export function GetCodexProgress(arg1:number):Promise<dto.CodexProgressResponse>;
@@ -19,6 +21,8 @@ export function GetCodexProgress(arg1:number):Promise<dto.CodexProgressResponse>
 export function GetCodexWithSections(arg1:number):Promise<dto.CodexWithSectionsResponse>;
 
 export function GetDefaultContentPath():Promise<string>;
+
+export function GetGitHubStatus():Promise<dto.GitHubStatusResponse>;
 
 export function GetSectionContent(arg1:number):Promise<string>;
 
@@ -29,6 +33,8 @@ export function GetSetting(arg1:string):Promise<string>;
 export function GetSettings():Promise<Record<string, string>>;
 
 export function ImportMarkdownFile(arg1:string):Promise<string>;
+
+export function InitializeGitHub(arg1:string,arg2:string,arg3:string):Promise<void>;
 
 export function PinCodex(arg1:number,arg2:boolean):Promise<void>;
 
@@ -45,6 +51,10 @@ export function SelectMarkdownFile():Promise<string>;
 export function SetSectionComplete(arg1:number,arg2:boolean):Promise<void>;
 
 export function SetSetting(arg1:string,arg2:string):Promise<void>;
+
+export function SyncToGitHub(arg1:string):Promise<void>;
+
+export function TestGitHubConnection(arg1:string,arg2:string):Promise<void>;
 
 export function UpdateCodex(arg1:number,arg2:string,arg3:string):Promise<void>;
 
