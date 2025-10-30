@@ -45,3 +45,33 @@ type CodexProgress struct {
 	CompletedSections int     `json:"completedSections"`
 	ProgressPercent   float32 `json:"progressPercent"`
 }
+
+// StructureJSON represents the complete structure exported to structure.json
+type StructureJSON struct {
+	Version     string            `json:"version"`
+	GeneratedAt time.Time         `json:"generatedAt"`
+	Codexes     []CodexStructure  `json:"codexes"`
+}
+
+// CodexStructure represents a codex structure for structure.json
+type CodexStructure struct {
+	ID          int                `json:"id"`
+	Title       string             `json:"title"`
+	Description string             `json:"description"`
+	IsPinned    bool               `json:"isPinned"`
+	FolderPath  string             `json:"folderPath"`
+	CreatedAt   time.Time          `json:"createdAt"`
+	UpdatedAt   time.Time          `json:"updatedAt"`
+	Sections    []SectionStructure `json:"sections"`
+}
+
+// SectionStructure represents a section structure for structure.json
+type SectionStructure struct {
+	ID         int       `json:"id"`
+	Title      string    `json:"title"`
+	FilePath   string    `json:"filePath"`
+	IsComplete bool      `json:"isComplete"`
+	OrderIndex int       `json:"orderIndex"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
+}
